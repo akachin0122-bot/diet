@@ -52,7 +52,7 @@
                     <span class="font-bold text-lg text-slate-800 hidden sm:inline">AI Diet Tracker</span>
                 </div>
                 
-                <!-- 日付選択バー -->
+                <!-- 日付選択バー (JST対応) -->
                 <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
                     <button onclick="shiftSelectedDate(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 transition" title="前日">
                         <i class="fa-solid fa-chevron-left text-xs"></i>
@@ -266,8 +266,7 @@
                     </form>
                 </div>
             </div>
-
-            <!-- 体重推移グラフ -->
+<!-- 体重推移グラフ -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-slate-800 text-sm">体重推移グラフ</h3>
@@ -313,8 +312,20 @@
             </div>
         </div>
     </div>
-     <!-- JavaScript ロジック -->
+
+    <!-- JavaScript ロジック -->
     <script>
+        // 日本時間 (JST) の YYYY-MM-DD を取得する関数
+        function getJSTDateString(dateObj = new Date()) {
+            const jstOffset = 9 * 60; // 日本時間のオフセット (+9時間)
+            const localUtc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000);
+            const jstDate = new Date(localUtc + (jstOffset * 60000));
+            const yyyy = jstDate.getFullYear();
+            const mm = String(jstDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(jstDate.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
         // 設定＆データ保持
         const PIN_CODE = "0525";
         let state = {
@@ -325,7 +336,7 @@
             weightLogs: JSON.parse(localStorage.getItem('diet_weight_logs')) || [],
             selectedImageBase64: null,
             graphPeriod: 7,
-            selectedDate: new Date().toISOString().split('T')[0]
+            selectedDate: getJSTDateString() // 初期値：日本時間の今日
         };
 
         let weightChart = null;
@@ -337,15 +348,21 @@
 
         // 日付操作関数
         function setTodayDate() {
-            state.selectedDate = new Date().toISOString().split('T')[0];
+            state.selectedDate = getJSTDateString();
             document.getElementById('selected-date-picker').value = state.selectedDate;
             updateAppView();
         }
 
         function shiftSelectedDate(offsetDays) {
-            const d = new Date(state.selectedDate);
-            d.setDate(d.getDate() + offsetDays);
-            state.selectedDate = d.toISOString().split('T')[0];
+            const [y, m, d] = state.selectedDate.split('-').map(Number);
+            const dateObj = new Date(y, m - 1, d);
+            dateObj.setDate(dateObj.getDate() + offsetDays);
+            
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            
+            state.selectedDate = `${yyyy}-${mm}-${dd}`;
             document.getElementById('selected-date-picker').value = state.selectedDate;
             updateAppView();
         }
@@ -394,7 +411,7 @@
         }
 
         function updateDateNotice() {
-            const today = new Date().toISOString().split('T')[0];
+            const today = getJSTDateString();
             const noticeBar = document.getElementById('date-notice-bar');
             const dateLabel = state.selectedDate === today ? '今日' : state.selectedDate;
             
@@ -476,7 +493,7 @@
             document.getElementById('image-preview-container').classList.add('hidden');
         }
 
-        // Gemini AI 解析 (モデル名を修正: gemini-1.5-flash)
+        // Gemini AI 解析 (最新モデル gemini-2.5-flash に修正)
         async function analyzeFoodWithAI() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -511,8 +528,7 @@ JSONフォーマット例:
 }
 入力テキスト: ${textInput}
 `;
-
-                let contents = [];
+let contents = [];
                 if (state.selectedImageBase64) {
                     const base64Data = state.selectedImageBase64.split(',')[1];
                     const mimeType = state.selectedImageBase64.split(';')[0].split(':')[1];
@@ -528,8 +544,8 @@ JSONフォーマット例:
                     });
                 }
 
-                // モデル指定を gemini-1.5-flash に修正
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                // モデルを gemini-2.5-flash に設定
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: contents })
@@ -568,7 +584,7 @@ JSONフォーマット例:
             }
         }
 
-        // 食事ログ保存
+        // 食事ログ保存 (選択日に合算追加)
         function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
@@ -601,7 +617,7 @@ JSONフォーマット例:
             renderFoodLogs();
         }
 
-       // 食事ログ描写
+        // 食事ログ描写
         function renderFoodLogs() {
             const selectedDate = state.selectedDate;
             const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
