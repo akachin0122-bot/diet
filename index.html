@@ -49,12 +49,27 @@
                     <div class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md shadow-emerald-500/20">
                         <i class="fa-solid fa-apple-whole"></i>
                     </div>
-                    <span class="font-bold text-lg text-slate-800">AI Diet Tracker</span>
+                    <span class="font-bold text-lg text-slate-800 hidden sm:inline">AI Diet Tracker</span>
                 </div>
+                
+                <!-- 日付選択バー -->
+                <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                    <button onclick="shiftSelectedDate(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 transition" title="前日">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <input type="date" id="selected-date-picker" onchange="onDateChange(event)" class="bg-transparent font-bold text-xs sm:text-sm text-slate-700 outline-none cursor-pointer text-center">
+                    <button onclick="shiftSelectedDate(1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 transition" title="翌日">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                    <button onclick="setTodayDate()" class="px-2 py-1 bg-emerald-500 text-white font-bold text-xs rounded-lg shadow-sm hover:bg-emerald-600 transition">
+                        今日
+                    </button>
+                </div>
+
                 <div class="flex items-center gap-2">
                     <button onclick="openSettingsModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition">
                         <i class="fa-solid fa-key text-amber-500"></i>
-                        <span>APIキー設定</span>
+                        <span class="hidden sm:inline">APIキー設定</span>
                     </button>
                     <button onclick="lockApp()" class="p-2 rounded-lg text-slate-400 hover:text-slate-600 transition" title="施錠">
                         <i class="fa-solid fa-lock"></i>
@@ -65,12 +80,18 @@
 
         <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
+            <!-- 対象日お知らせメッセージ -->
+            <div id="date-notice-bar" class="hidden bg-indigo-50 border border-indigo-200 text-indigo-700 px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-between">
+                <span id="date-notice-text">過去の日付の記録を表示中</span>
+                <button onclick="setTodayDate()" class="underline hover:text-indigo-900">今日に戻る</button>
+            </div>
+
             <!-- サマリーカード -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- 体重サマリー -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">現在の体重</span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">最新の体重</span>
                         <i class="fa-solid fa-weight-scale text-slate-400"></i>
                     </div>
                     <div class="flex items-baseline gap-1">
@@ -86,12 +107,12 @@
                 <!-- カロリーサマリー -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">今日の摂取カロリー</span>
+                        <span id="summary-calorie-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">選択日の摂取カロリー</span>
                         <i class="fa-solid fa-fire text-amber-500"></i>
                     </div>
                     <div class="flex items-baseline gap-1">
                         <span id="summary-calories" class="text-3xl font-black text-slate-800">0</span>
-                        <span class="text-sm font-medium text-slate-500">/ <span id="summary-target-calories">2000</span> kcal</span>
+                        <span class="text-sm font-medium text-slate-500">/ <span id="summary-target-calories">1500</span> kcal</span>
                     </div>
                     <!-- プログレスバー -->
                     <div class="mt-2 space-y-1">
@@ -104,7 +125,7 @@
                 <!-- PFCバランス -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">今日のPFCバランス</span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">選択日のPFCバランス</span>
                         <i class="fa-solid fa-chart-pie text-indigo-500"></i>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-center my-1">
@@ -198,7 +219,7 @@
                         </div>
                         <div class="flex items-end">
                             <button onclick="saveFoodRecord()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold p-2 rounded-lg text-sm transition shadow-sm">
-                                食事を記録
+                                選択日に記録
                             </button>
                         </div>
                     </div>
@@ -209,13 +230,12 @@
                     <input type="hidden" id="food-c-input" value="0">
                 </div>
             </section>
-
-            <!-- 今日の食事ログ＆体重記録 -->
+<!-- 選択日の食事ログ＆体重記録 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 食事ログ一覧 -->
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <h3 class="font-bold text-slate-800 text-sm">本日の食事ログ</h3>
+                        <h3 class="font-bold text-slate-800 text-sm"><span id="food-log-date-label">選択日</span>の食事ログ</h3>
                         <span id="log-count" class="text-xs text-slate-400">0件</span>
                     </div>
                     <div id="food-log-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -226,8 +246,7 @@
                 <!-- 体重記録フォーム -->
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <h3 class="font-bold text-slate-800 text-sm">今日の体重を記録</h3>
-                        <span class="text-xs text-slate-400" id="current-date-display">--</span>
+                        <h3 class="font-bold text-slate-800 text-sm"><span id="weight-log-date-label">選択日</span>の体重</h3>
                     </div>
                     <form onsubmit="saveWeightRecord(event)" class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
@@ -246,7 +265,8 @@
                     </form>
                 </div>
             </div>
- <!-- 体重推移グラフ -->
+
+            <!-- 体重推移グラフ -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-slate-800 text-sm">体重推移グラフ</h3>
@@ -304,16 +324,38 @@
             foodLogs: JSON.parse(localStorage.getItem('diet_food_logs')) || [],
             weightLogs: JSON.parse(localStorage.getItem('diet_weight_logs')) || [],
             selectedImageBase64: null,
-            graphPeriod: 7
+            graphPeriod: 7,
+            selectedDate: new Date().toISOString().split('T')[0] // 初期値：今日 YYYY-MM-DD
         };
 
         let weightChart = null;
 
         // 初期化
         document.addEventListener('DOMContentLoaded', () => {
-            const todayStr = new Date().toLocaleDateString('ja-JP');
-            document.getElementById('current-date-display').innerText = todayStr;
+            document.getElementById('selected-date-picker').value = state.selectedDate;
         });
+
+        // 日付操作関数
+        function setTodayDate() {
+            state.selectedDate = new Date().toISOString().split('T')[0];
+            document.getElementById('selected-date-picker').value = state.selectedDate;
+            updateAppView();
+        }
+
+        function shiftSelectedDate(offsetDays) {
+            const d = new Date(state.selectedDate);
+            d.setDate(d.getDate() + offsetDays);
+            state.selectedDate = d.toISOString().split('T')[0];
+            document.getElementById('selected-date-picker').value = state.selectedDate;
+            updateAppView();
+        }
+
+        function onDateChange(e) {
+            if (e.target.value) {
+                state.selectedDate = e.target.value;
+                updateAppView();
+            }
+        }
 
         // ログイン処理
         function handleLogin(e) {
@@ -340,20 +382,53 @@
 
         // アプリメイン初期化
         function initApp() {
+            setTodayDate();
+            initChart();
+        }
+
+        function updateAppView() {
             updateDashboard();
             renderFoodLogs();
-            initChart();
+            updateDateNotice();
+            loadWeightForSelectedDate();
+        }
+
+        function updateDateNotice() {
+            const today = new Date().toISOString().split('T')[0];
+            const noticeBar = document.getElementById('date-notice-bar');
+            const dateLabel = state.selectedDate === today ? '今日' : state.selectedDate;
+            
+            document.getElementById('food-log-date-label').innerText = dateLabel;
+            document.getElementById('weight-log-date-label').innerText = dateLabel;
+
+            if (state.selectedDate !== today) {
+                document.getElementById('date-notice-text').innerText = `過去の日付 (${state.selectedDate}) の記録を表示・編集しています`;
+                noticeBar.classList.remove('hidden');
+            } else {
+                noticeBar.classList.add('hidden');
+            }
+        }
+
+        function loadWeightForSelectedDate() {
+            const record = state.weightLogs.find(w => w.date === state.selectedDate);
+            if (record) {
+                document.getElementById('weight-input').value = record.weight;
+                document.getElementById('fat-input').value = record.fat || '';
+            } else {
+                document.getElementById('weight-input').value = '';
+                document.getElementById('fat-input').value = '';
+            }
         }
 
         // ダッシュボード更新
         function updateDashboard() {
-            const today = new Date().toISOString().split('T')[0];
+            const selectedDate = state.selectedDate;
 
-            const todayFoods = state.foodLogs.filter(f => f.date === today);
-            const totalCal = todayFoods.reduce((sum, f) => sum + f.calories, 0);
-            const totalP = todayFoods.reduce((sum, f) => sum + (f.p || 0), 0);
-            const totalF = todayFoods.reduce((sum, f) => sum + (f.f || 0), 0);
-            const totalC = todayFoods.reduce((sum, f) => sum + (f.c || 0), 0);
+            const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
+            const totalCal = targetFoods.reduce((sum, f) => sum + f.calories, 0);
+            const totalP = targetFoods.reduce((sum, f) => sum + (f.p || 0), 0);
+            const totalF = targetFoods.reduce((sum, f) => sum + (f.f || 0), 0);
+            const totalC = targetFoods.reduce((sum, f) => sum + (f.c || 0), 0);
 
             document.getElementById('summary-calories').innerText = totalCal;
             document.getElementById('summary-target-calories').innerText = state.targetCalories;
@@ -380,8 +455,7 @@
                 }
             }
         }
-
-        // 画像プレビュー
+// 画像プレビュー
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -432,7 +506,7 @@ JSONフォーマット例:
   "p": 15,
   "f": 12,
   "c": 60,
-  "advice": "バランスが素晴らしいですね！朝からしっかりタンパク質を補給できていて最高の一日のスタートです✨"
+  "advice": "バランスが素晴らしいですね！しっかりタンパク質を補給できていて最高です✨"
 }
 入力テキスト: ${textInput}
 `;
@@ -472,9 +546,7 @@ JSONフォーマット例:
                     document.getElementById('food-f-input').value = result.f || 0;
                     document.getElementById('food-c-input').value = result.c || 0;
 
-                    // AIアドバイスを表示
                     document.getElementById('ai-advice-text').innerText = result.advice || "美味しそうな食事ですね！しっかり記録して頑張りましょう👍";
-
                     document.getElementById('ai-result-card').classList.remove('hidden');
                 } else {
                     alert('AIからの応答を解析できませんでした。手動で入力してください。');
@@ -488,7 +560,8 @@ JSONフォーマット例:
                 btn.innerHTML = `<i class="fa-solid fa-bolt"></i> <span>AIでカロリー解析</span>`;
             }
         }
-// 食事ログ保存
+
+        // 食事ログ保存
         function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
@@ -499,10 +572,10 @@ JSONフォーマット例:
 
             if (!name) return;
 
-            const today = new Date().toISOString().split('T')[0];
+            const targetDate = state.selectedDate;
             const newLog = {
                 id: Date.now(),
-                date: today,
+                date: targetDate,
                 time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
                 name,
                 calories,
@@ -523,18 +596,18 @@ JSONフォーマット例:
 
         // 食事ログ描写
         function renderFoodLogs() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayFoods = state.foodLogs.filter(f => f.date === today);
+            const selectedDate = state.selectedDate;
+            const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
             const container = document.getElementById('food-log-list');
 
-            document.getElementById('log-count').innerText = `${todayFoods.length}件`;
+            document.getElementById('log-count').innerText = `${targetFoods.length}件`;
 
-            if (todayFoods.length === 0) {
+            if (targetFoods.length === 0) {
                 container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">まだ記録がありません</div>`;
                 return;
             }
 
-            container.innerHTML = todayFoods.map(item => `
+            container.innerHTML = targetFoods.map(item => `
                 <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
                     <div class="space-y-0.5">
                         <div class="flex items-center gap-2">
@@ -565,15 +638,15 @@ JSONフォーマット例:
             e.preventDefault();
             const weight = parseFloat(document.getElementById('weight-input').value);
             const fat = parseFloat(document.getElementById('fat-input').value) || null;
-            const today = new Date().toISOString().split('T')[0];
+            const targetDate = state.selectedDate;
 
             if (!weight) return;
 
-            const existingIdx = state.weightLogs.findIndex(w => w.date === today);
+            const existingIdx = state.weightLogs.findIndex(w => w.date === targetDate);
             if (existingIdx >= 0) {
-                state.weightLogs[existingIdx] = { date: today, weight, fat };
+                state.weightLogs[existingIdx] = { date: targetDate, weight, fat };
             } else {
-                state.weightLogs.push({ date: today, weight, fat });
+                state.weightLogs.push({ date: targetDate, weight, fat });
             }
 
             state.weightLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -581,8 +654,7 @@ JSONフォーマット例:
 
             updateDashboard();
             updateChart();
-            document.getElementById('weight-input').value = '';
-            document.getElementById('fat-input').value = '';
+            alert(`${targetDate} の体重を保存しました！`);
         }
 
         // グラフ初期化・更新
@@ -637,7 +709,6 @@ JSONフォーマット例:
             state.graphPeriod = days;
             updateChart();
         }
-
         // 設定モーダル
         function openSettingsModal() {
             document.getElementById('api-key-input').value = state.apiKey;
@@ -660,7 +731,7 @@ JSONフォーマット例:
             localStorage.setItem('diet_target_calories', state.targetCalories);
 
             closeSettingsModal();
-            updateDashboard();
+            updateAppView();
         }
     </script>
 </body>
