@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <!-- メインコンテンツ (初期状態は隠す) -->
+    <!-- メインコンテンツ -->
     <div id="main-content" class="hidden">
         <!-- ヘッダー -->
         <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
@@ -162,18 +162,31 @@
                         </div>
                         <div>
                             <h2 class="text-base font-bold">パーソナルトレーナーAI</h2>
-                            <p class="text-xs text-amber-100">今日の食事・運動状況を分析してアドバイスします</p>
+                            <p class="text-xs text-amber-100">今日の食事・運動・コンディションを総合サポート</p>
                         </div>
                     </div>
                     <button onclick="getTrainerAdvice()" id="trainer-btn" class="bg-white text-orange-600 hover:bg-amber-50 font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5 active:scale-95">
                         <i class="fa-solid fa-comments"></i>
-                        <span>トレーナーに相談する</span>
+                        <span>総合アドバイスをもらう</span>
                     </button>
                 </div>
 
                 <!-- アドバイス表示エリア -->
-                <div id="trainer-result-box" class="hidden bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3.5 text-xs leading-relaxed text-amber-50">
+                <div id="trainer-result-box" class="hidden bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3.5 text-xs leading-relaxed text-amber-50 space-y-2">
                     <span id="trainer-advice-text">分析中...</span>
+                </div>
+
+                <!-- 新機能：コンビニ・外食お助けクイック相談 -->
+                <div class="pt-2 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-amber-100 flex items-center gap-1">
+                        <i class="fa-solid fa-store"></i> 外食・コンビニのおすすめ相談:
+                    </span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="askConvenience('セブンイレブン')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg transition">セブン</button>
+                        <button onclick="askConvenience('ローソン')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg transition">ローソン</button>
+                        <button onclick="askConvenience('ファミリーマート')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg transition">ファミマ</button>
+                        <button onclick="askConvenience('一般的な居酒屋・外食')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg transition">外食・居酒屋</button>
+                    </div>
                 </div>
             </section>
 
@@ -186,14 +199,7 @@
                     </h2>
                     <span class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-0.5 rounded-full font-medium">Gemini AI</span>
                 </div>
-
-                <!-- AI入力フォーム -->
-                <div class="space-y-3">
-                    <div class="relative">
-                        <textarea id="ai-food-input" rows="2" placeholder="食べたものを入力（例: 納豆ご飯と目玉焼き、味噌汁）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none resize-none transition"></textarea>
-                    </div>
-
-                    <!-- 画像添付プレビュー & ボタンエリア -->
+    <!-- 画像添付プレビュー & ボタンエリア -->
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <label class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer transition">
@@ -214,9 +220,8 @@
                     </div>
                 </div>
 
-                <!-- AI解析結果＆応援アドバイスカード -->
+                <!-- AI解析結果カード -->
                 <div id="ai-result-card" class="hidden bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
-                    <!-- AI応援アドバイス吹き出し -->
                     <div id="ai-advice-box" class="bg-white border border-amber-200/80 rounded-xl p-3 shadow-sm flex items-start gap-3">
                         <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-sm">
                             <i class="fa-solid fa-comment-dots"></i>
@@ -255,16 +260,14 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- 隠しPFC -->
                     <input type="hidden" id="food-p-input" value="0">
                     <input type="hidden" id="food-f-input" value="0">
                     <input type="hidden" id="food-c-input" value="0">
                 </div>
             </section>
 
-    <!-- 選択日の食事ログ・歩数記録・体重記録 -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 選択日の食事ログ・歩数・体重・コンディション記録 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 食事ログ一覧 -->
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -276,30 +279,47 @@
                     </div>
                 </div>
 
-                <!-- 歩数・活動記録フォーム -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
+                <!-- コンディション・水分・お通じ記録フォーム -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <h3 class="font-bold text-slate-800 text-sm"><span id="activity-log-date-label">選択日</span>の歩数</h3>
+                        <h3 class="font-bold text-slate-800 text-sm"><span id="condition-log-date-label">選択日</span>のコンディション・水分</h3>
                     </div>
-                    <form onsubmit="saveActivityRecord(event)" class="space-y-3">
+                    <form onsubmit="saveConditionRecord(event)" class="space-y-3">
                         <div>
                             <label class="text-xs font-medium text-slate-500">今日の歩数 (歩)</label>
                             <input type="number" id="steps-input" step="100" placeholder="8000" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:border-emerald-500">
-                            <p class="text-[10px] text-slate-400 mt-1">※歩数から自動で消費kcalを算出してバランスに反映します</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-slate-500">水分補給 (コップ数 / 目安約200ml単位)</label>
+                            <div class="flex items-center gap-2 mt-1">
+                                <button type="button" onclick="adjustWater(-1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-700">-</button>
+                                <input type="number" id="water-input" value="0" min="0" class="w-full text-center border border-slate-200 rounded-xl p-2 text-sm outline-none font-bold text-blue-600">
+                                <button type="button" onclick="adjustWater(1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-700">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-slate-500">お通じ (スッキリ記録)</label>
+                            <select id="bowel-input" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm outline-none bg-white mt-1">
+                                <option value="未記録">未選択</option>
+                                <option value="スッキリ快調✨">スッキリ快調✨</option>
+                                <option value="普通👍">普通👍</option>
+                                <option value="少し・スッキリせず💦">少し・スッキリせず💦</option>
+                                <option value="なし">なし</option>
+                            </select>
                         </div>
                         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm transition">
-                            歩数を保存
+                            コンディションを保存
                         </button>
                     </form>
                 </div>
 
                 <!-- 体重記録フォーム -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3 md:col-span-2">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <h3 class="font-bold text-slate-800 text-sm"><span id="weight-log-date-label">選択日</span>の体重</h3>
                     </div>
                     <form onsubmit="saveWeightRecord(event)" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="text-xs font-medium text-slate-500">体重 (kg)</label>
                                 <input type="number" id="weight-input" step="0.1" placeholder="60.0" required class="w-full border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:border-emerald-500">
@@ -365,9 +385,8 @@
 
     <!-- JavaScript ロジック -->
     <script>
-        // 日本時間 (JST) の YYYY-MM-DD を取得する関数
         function getJSTDateString(dateObj = new Date()) {
-            const jstOffset = 9 * 60; // 日本時間のオフセット (+9時間)
+            const jstOffset = 9 * 60;
             const localUtc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000);
             const jstDate = new Date(localUtc + (jstOffset * 60000));
             const yyyy = jstDate.getFullYear();
@@ -376,7 +395,6 @@
             return `${yyyy}-${mm}-${dd}`;
         }
 
-        // 設定＆データ保持
         const PIN_CODE = "0525";
         let state = {
             apiKey: localStorage.getItem('diet_gemini_api_key') || '',
@@ -387,24 +405,21 @@
             activityLogs: JSON.parse(localStorage.getItem('diet_activity_logs')) || [],
             selectedImageBase64: null,
             graphPeriod: 7,
-            selectedDate: getJSTDateString() // 初期値：日本時間の今日
+            selectedDate: getJSTDateString()
         };
 
         let weightChart = null;
 
-        // 初期化
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('selected-date-picker').value = state.selectedDate;
         });
 
-        // 日付操作関数
         function setTodayDate() {
             state.selectedDate = getJSTDateString();
             document.getElementById('selected-date-picker').value = state.selectedDate;
             updateAppView();
         }
-
-        function shiftSelectedDate(offsetDays) {
+function shiftSelectedDate(offsetDays) {
             const [y, m, d] = state.selectedDate.split('-').map(Number);
             const dateObj = new Date(y, m - 1, d);
             dateObj.setDate(dateObj.getDate() + offsetDays);
@@ -425,7 +440,6 @@
             }
         }
 
-        // ログイン処理
         function handleLogin(e) {
             e.preventDefault();
             const input = document.getElementById('pin-input').value;
@@ -448,7 +462,6 @@
             document.getElementById('login-error').classList.add('hidden');
         }
 
-        // アプリメイン初期化
         function initApp() {
             setTodayDate();
             initChart();
@@ -467,7 +480,7 @@
             const dateLabel = state.selectedDate === today ? '今日' : state.selectedDate;
             
             document.getElementById('food-log-date-label').innerText = dateLabel;
-            document.getElementById('activity-log-date-label').innerText = dateLabel;
+            document.getElementById('condition-log-date-label').innerText = dateLabel;
             document.getElementById('weight-log-date-label').innerText = dateLabel;
 
             if (state.selectedDate !== today) {
@@ -477,7 +490,8 @@
                 noticeBar.classList.add('hidden');
             }
         }
-function loadDataForSelectedDate() {
+
+        function loadDataForSelectedDate() {
             const wRecord = state.weightLogs.find(w => w.date === state.selectedDate);
             if (wRecord) {
                 document.getElementById('weight-input').value = wRecord.weight;
@@ -489,13 +503,23 @@ function loadDataForSelectedDate() {
 
             const aRecord = state.activityLogs.find(a => a.date === state.selectedDate);
             if (aRecord) {
-                document.getElementById('steps-input').value = aRecord.steps;
+                document.getElementById('steps-input').value = aRecord.steps || '';
+                document.getElementById('water-input').value = aRecord.water || 0;
+                document.getElementById('bowel-input').value = aRecord.bowel || '未記録';
             } else {
                 document.getElementById('steps-input').value = '';
+                document.getElementById('water-input').value = 0;
+                document.getElementById('bowel-input').value = '未記録';
             }
         }
 
-        // ダッシュボード＆バランス更新
+        function adjustWater(amount) {
+            const input = document.getElementById('water-input');
+            let current = parseInt(input.value) || 0;
+            current = Math.max(0, current + amount);
+            input.value = current;
+        }
+
         function updateDashboard() {
             const selectedDate = state.selectedDate;
 
@@ -506,7 +530,7 @@ function loadDataForSelectedDate() {
             const totalC = targetFoods.reduce((sum, f) => sum + (f.c || 0), 0);
 
             const aRecord = state.activityLogs.find(a => a.date === selectedDate);
-            const steps = aRecord ? aRecord.steps : 0;
+            const steps = aRecord ? (aRecord.steps || 0) : 0;
             const burnCal = Math.round(steps * 0.04);
             const netCal = totalCal - burnCal;
 
@@ -538,7 +562,6 @@ function loadDataForSelectedDate() {
             }
         }
 
-        // 画像プレビュー
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -558,7 +581,7 @@ function loadDataForSelectedDate() {
             document.getElementById('image-preview-container').classList.add('hidden');
         }
 
-        // パーソナルトレーナーAIアドバイス機能
+        // パーソナルトレーナーAIアドバイス（水分・お通じ情報も含めて分析）
         async function getTrainerAdvice() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -574,9 +597,11 @@ function loadDataForSelectedDate() {
             const totalF = targetFoods.reduce((sum, f) => sum + (f.f || 0), 0);
             const totalC = targetFoods.reduce((sum, f) => sum + (f.c || 0), 0);
             
-            const aRecord = state.activityLogs.find(a => a.date === selectedDate);
-            const steps = aRecord ? aRecord.steps : 0;
+            const aRecord = state.activityLogs.find(a => a.date === selectedDate) || {};
+            const steps = aRecord.steps || 0;
             const burnCal = Math.round(steps * 0.04);
+            const water = aRecord.water || 0;
+            const bowel = aRecord.bowel || '未記録';
             const foodListStr = targetFoods.map(f => `- ${f.category}: ${f.name} (${f.calories}kcal, P:${f.p}g, F:${f.f}g, C:${f.c}g)`).join('\n') || '記録なし';
 
             const btn = document.getElementById('trainer-btn');
@@ -584,14 +609,14 @@ function loadDataForSelectedDate() {
             const textEl = document.getElementById('trainer-advice-text');
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 相談中...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 分析中...`;
             box.classList.remove('hidden');
-            textEl.innerText = "あなたの専属トレーナーが今日のデータを分析しています...";
+            textEl.innerText = "あなたの専属トレーナーが食事・運動・コンディションを分析しています...";
 
             try {
                 const prompt = `
 あなたはプロの専属パーソナルトレーナー兼ダイエットアドバイザーです。
-以下の「${selectedDate}」のユーザーのダイエットデータを元に、親しみやすく、かつ的確でモチベーションが上がるアドバイス（150〜200文字程度、絵文字入り）を日本語で教えてください。
+以下の「${selectedDate}」のユーザーのダイエット・健康データを元に、親しみやすく、かつ的確でモチベーションが上がるアドバイス（150〜200文字程度、絵文字入り）を日本語で教えてください。
 
 【本人の目標設定】
 - 1日の目標摂取カロリー: ${state.targetCalories} kcal
@@ -603,34 +628,70 @@ ${foodListStr}
 - 摂取カロリー合計: ${totalCal} kcal
 - 歩数: ${steps}歩 (消費カロリー: ${burnCal} kcal)
 - PFCバランス: P(${totalP}g) / F(${totalF}g) / C(${totalC}g)
+- 水分補給: コップ${water}杯 (約${water * 200}ml)
+- お通じコンディション: ${bowel}
 
-アドバイス内容には、今日の食事・運動の褒めポイントや、もし改善点があれば優しく具体的なアドバイスを入れてください。
+食事やカロリーだけでなく、水分補給やお通じの状態へのねぎらい・具体的なアドバイスも交えて褒めて励ましてください。
 `;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }]
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
 
                 const data = await response.json();
                 if (data.error) throw new Error(data.error.message);
 
-                const advice = data.candidates[0].content.parts[0].text;
-                textEl.innerText = advice;
+                textEl.innerText = data.candidates[0].content.parts[0].text;
 
             } catch (err) {
                 console.error(err);
                 textEl.innerText = "トレーナーとの通信に失敗しました。APIキーを確認してください。";
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-comments"></i> <span>トレーナーに相談する</span>`;
+                btn.innerHTML = `<i class="fa-solid fa-comments"></i> <span>総合アドバイスをもらう</span>`;
             }
         }
 
-        // Gemini AI 解析 (gemini-3.8-flash)
+        // コンビニ・外食お助け相談機能
+        async function askConvenience(placeName) {
+            const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
+            if (!apiKey) {
+                alert('先に右上「APIキー設定」からGemini APIキーを設定してください。');
+                openSettingsModal();
+                return;
+            }
+
+            const box = document.getElementById('trainer-result-box');
+            const textEl = document.getElementById('trainer-advice-text');
+
+            box.classList.remove('hidden');
+            textEl.innerText = `${placeName}での高タンパク・低カロリーなオススメ商品をトレーナーが厳選中...`;
+
+            try {
+                const prompt = `
+あなたはプロのダイエットパーソナルトレーナーです。
+ユーザーが今から「${placeName}」に行こうとしています。ダイエット中（アンダーカロリー・高タンパク意識）に最適なおすすめの食品・メニューを3つ挙げて、それぞれの選ぶポイントや嬉しい理由を分かりやすく（150文字程度、絵文字つき）で教えてください。
+`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+
+                textEl.innerText = data.candidates[0].content.parts[0].text;
+
+            } catch (err) {
+                console.error(err);
+                textEl.innerText = "通信に失敗しました。APIキーを確認してください。";
+            }
+        }
+
         async function analyzeFoodWithAI() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -677,9 +738,7 @@ JSONフォーマット例:
                         ]
                     });
                 } else {
-                    contents.push({
-                        parts: [{ text: promptText }]
-                    });
+                    contents.push({ parts: [{ text: promptText }] });
                 }
 
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
@@ -689,13 +748,9 @@ JSONフォーマット例:
                 });
 
                 const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error.message || 'API Error');
-                }
+                if (data.error) throw new Error(data.error.message || 'API Error');
 
                 const responseText = data.candidates[0].content.parts[0].text;
-                
                 const jsonMatch = responseText.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     const result = JSON.parse(jsonMatch[0]);
@@ -719,8 +774,8 @@ JSONフォーマット例:
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-bolt"></i> <span>AIでカロリー解析</span>`;
             }
-                }
-         // 食事ログ保存
+        }
+
         function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
@@ -736,10 +791,7 @@ JSONフォーマット例:
                 id: Date.now(),
                 date: targetDate,
                 time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
-                name,
-                calories,
-                category,
-                p, f, c
+                name, calories, category, p, f, c
             };
 
             state.foodLogs.push(newLog);
@@ -753,7 +805,6 @@ JSONフォーマット例:
             renderFoodLogs();
         }
 
-        // 食事ログ描写
         function renderFoodLogs() {
             const selectedDate = state.selectedDate;
             const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
@@ -792,26 +843,26 @@ JSONフォーマット例:
             renderFoodLogs();
         }
 
-        // 歩数保存
-        function saveActivityRecord(e) {
+        // コンディション（歩数・水分・お通じ）保存
+        function saveConditionRecord(e) {
             e.preventDefault();
             const steps = parseInt(document.getElementById('steps-input').value) || 0;
+            const water = parseInt(document.getElementById('water-input').value) || 0;
+            const bowel = document.getElementById('bowel-input').value;
             const targetDate = state.selectedDate;
 
             const existingIdx = state.activityLogs.findIndex(a => a.date === targetDate);
             if (existingIdx >= 0) {
-                state.activityLogs[existingIdx] = { date: targetDate, steps };
+                state.activityLogs[existingIdx] = { ...state.activityLogs[existingIdx], date: targetDate, steps, water, bowel };
             } else {
-                state.activityLogs.push({ date: targetDate, steps });
+                state.activityLogs.push({ date: targetDate, steps, water, bowel });
             }
 
             localStorage.setItem('diet_activity_logs', JSON.stringify(state.activityLogs));
             updateDashboard();
-            alert(`${targetDate} の歩数を保存しました！`);
+            alert(`${targetDate} のコンディションを保存しました！`);
         }
-
-        // 体重保存
-        function saveWeightRecord(e) {
+function saveWeightRecord(e) {
             e.preventDefault();
             const weight = parseFloat(document.getElementById('weight-input').value);
             const fat = parseFloat(document.getElementById('fat-input').value) || null;
@@ -834,7 +885,6 @@ JSONフォーマット例:
             alert(`${targetDate} の体重を保存しました！`);
         }
 
-        // グラフ初期化・更新
         function initChart() {
             const ctx = document.getElementById('weightChart').getContext('2d');
             weightChart = new Chart(ctx, {
@@ -858,14 +908,8 @@ JSONフォーマット例:
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            grid: { color: '#f1f5f9' },
-                            ticks: { font: { size: 10 } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { size: 10 } }
-                        }
+                        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
                     }
                 }
             });
@@ -887,7 +931,6 @@ JSONフォーマット例:
             updateChart();
         }
 
-        // 設定モーダル
         function openSettingsModal() {
             document.getElementById('api-key-input').value = state.apiKey;
             document.getElementById('target-weight-input').value = state.targetWeight;
@@ -914,3 +957,9 @@ JSONフォーマット例:
     </script>
 </body>
 </html>
+
+                <!-- AI入力フォーム -->
+                <div class="space-y-3">
+                    <div class="relative">
+                        <textarea id="ai-food-input" rows="2" placeholder="食べたものを入力（例: 納豆ご飯と目玉焼き、味噌汁）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none resize-none transition"></textarea>
+                    </div>
