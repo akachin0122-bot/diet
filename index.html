@@ -129,7 +129,7 @@
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
-                        <span>AI食事カロリー自動計算</span>
+                        <span>AI食事カロリー自動計算 & アドバイス</span>
                     </h2>
                     <span class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-0.5 rounded-full font-medium">Gemini AI</span>
                 </div>
@@ -161,11 +161,21 @@
                     </div>
                 </div>
 
-                <!-- AI解析結果＆登録フォーム -->
-                <div id="ai-result-card" class="hidden bg-amber-50/50 border border-amber-200 rounded-xl p-4 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-amber-800">AI推定結果 (修正可能)</span>
-                        <span id="ai-confidence" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">確信度: 高</span>
+                <!-- AI解析結果＆応援アドバイスカード -->
+                <div id="ai-result-card" class="hidden bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
+                    <!-- AI応援アドバイス吹き出し -->
+                    <div id="ai-advice-box" class="bg-white border border-amber-200/80 rounded-xl p-3 shadow-sm flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-sm">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-xs font-bold text-amber-800">AIからのアドバイス & メッセージ</div>
+                            <p id="ai-advice-text" class="text-xs text-slate-700 leading-relaxed">解析中...</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <span class="text-xs font-bold text-slate-700">推定カロリー (修正可能)</span>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
@@ -187,7 +197,7 @@
                             </select>
                         </div>
                         <div class="flex items-end">
-                            <button onclick="saveFoodRecord()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold p-2 rounded-lg text-sm transition">
+                            <button onclick="saveFoodRecord()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold p-2 rounded-lg text-sm transition shadow-sm">
                                 食事を記録
                             </button>
                         </div>
@@ -217,7 +227,7 @@
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <h3 class="font-bold text-slate-800 text-sm">今日の体重を記録</h3>
-                        <span class="text-xs text-slate-400" id="current-date-display">2026/05/25</span>
+                        <span class="text-xs text-slate-400" id="current-date-display">--</span>
                     </div>
                     <form onsubmit="saveWeightRecord(event)" class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
@@ -236,7 +246,7 @@
                     </form>
                 </div>
             </div>
-<!-- 体重推移グラフ -->
+ <!-- 体重推移グラフ -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-slate-800 text-sm">体重推移グラフ</h3>
@@ -272,7 +282,7 @@
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-700">1日の目標カロリー (kcal)</label>
-                    <input type="number" id="target-calorie-input" value="1800" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm mt-1 outline-none">
+                    <input type="number" id="target-calorie-input" value="1500" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm mt-1 outline-none">
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
@@ -290,7 +300,7 @@
         let state = {
             apiKey: localStorage.getItem('diet_gemini_api_key') || '',
             targetWeight: parseFloat(localStorage.getItem('diet_target_weight')) || 55.0,
-            targetCalories: parseInt(localStorage.getItem('diet_target_calories')) || 1800,
+            targetCalories: parseInt(localStorage.getItem('diet_target_calories')) || 1500,
             foodLogs: JSON.parse(localStorage.getItem('diet_food_logs')) || [],
             weightLogs: JSON.parse(localStorage.getItem('diet_weight_logs')) || [],
             selectedImageBase64: null,
@@ -337,10 +347,8 @@
 
         // ダッシュボード更新
         function updateDashboard() {
-            // 今日の日付 (YYYY-MM-DD)
             const today = new Date().toISOString().split('T')[0];
 
-            // 今日の食事カロリー計算
             const todayFoods = state.foodLogs.filter(f => f.date === today);
             const totalCal = todayFoods.reduce((sum, f) => sum + f.calories, 0);
             const totalP = todayFoods.reduce((sum, f) => sum + (f.p || 0), 0);
@@ -356,7 +364,6 @@
             const progress = Math.min(100, (totalCal / state.targetCalories) * 100);
             document.getElementById('calorie-progress-bar').style.width = `${progress}%`;
 
-            // 体重表示
             if (state.weightLogs.length > 0) {
                 const latestWeight = state.weightLogs[state.weightLogs.length - 1].weight;
                 document.getElementById('summary-weight').innerText = latestWeight.toFixed(1);
@@ -394,7 +401,7 @@
             document.getElementById('image-preview-container').classList.add('hidden');
         }
 
-        // Gemini AI 解析
+        // Gemini AI 解析 (アドバイス機能つき)
         async function analyzeFoodWithAI() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -411,13 +418,12 @@
 
             const btn = document.getElementById('ai-analyze-btn');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 解析中...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 解析 & AI分析中...`;
 
             try {
-                // プロンプト構築
                 const promptText = `
 ユーザーが食べた食事に関するテキストまたは画像です。
-食品名、推定総カロリー(kcal)、推定タンパク質(P:g)、脂質(F:g)、炭水化物(C:g)を以下のJSON形式でのみ返してください。余計な解説は不要です。
+食品名、推定総カロリー(kcal)、推定タンパク質(P:g)、脂質(F:g)、炭水化物(C:g)、そしてダイエッターを温かく褒めたりアドバイスしたりする短い応援メッセージ(advice: 100文字程度、親しみやすい絵文字つき)を以下のJSON形式でのみ返してください。
 
 JSONフォーマット例:
 {
@@ -425,7 +431,8 @@ JSONフォーマット例:
   "calories": 420,
   "p": 15,
   "f": 12,
-  "c": 60
+  "c": 60,
+  "advice": "バランスが素晴らしいですね！朝からしっかりタンパク質を補給できていて最高の一日のスタートです✨"
 }
 入力テキスト: ${textInput}
 `;
@@ -455,17 +462,18 @@ JSONフォーマット例:
                 const data = await response.json();
                 const responseText = data.candidates[0].content.parts[0].text;
                 
-                // JSON抽出
                 const jsonMatch = responseText.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     const result = JSON.parse(jsonMatch[0]);
                     
-           // 結果をフォームに挿入
                     document.getElementById('food-name-input').value = result.name || textInput || '食事';
                     document.getElementById('food-cal-input').value = result.calories || 0;
                     document.getElementById('food-p-input').value = result.p || 0;
                     document.getElementById('food-f-input').value = result.f || 0;
                     document.getElementById('food-c-input').value = result.c || 0;
+
+                    // AIアドバイスを表示
+                    document.getElementById('ai-advice-text').innerText = result.advice || "美味しそうな食事ですね！しっかり記録して頑張りましょう👍";
 
                     document.getElementById('ai-result-card').classList.remove('hidden');
                 } else {
@@ -480,8 +488,7 @@ JSONフォーマット例:
                 btn.innerHTML = `<i class="fa-solid fa-bolt"></i> <span>AIでカロリー解析</span>`;
             }
         }
-
-        // 食事ログ保存
+// 食事ログ保存
         function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
@@ -506,7 +513,6 @@ JSONフォーマット例:
             state.foodLogs.push(newLog);
             localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
 
-            // フォームリセット
             document.getElementById('ai-food-input').value = '';
             document.getElementById('ai-result-card').classList.add('hidden');
             removeImage();
@@ -563,7 +569,6 @@ JSONフォーマット例:
 
             if (!weight) return;
 
-            // 同日のログがあれば上書き
             const existingIdx = state.weightLogs.findIndex(w => w.date === today);
             if (existingIdx >= 0) {
                 state.weightLogs[existingIdx] = { date: today, weight, fat };
@@ -571,7 +576,6 @@ JSONフォーマット例:
                 state.weightLogs.push({ date: today, weight, fat });
             }
 
-            // 日付順ソート
             state.weightLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
             localStorage.setItem('diet_weight_logs', JSON.stringify(state.weightLogs));
 
@@ -603,9 +607,7 @@ JSONフォーマット例:
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         y: {
                             grid: { color: '#f1f5f9' },
@@ -626,7 +628,7 @@ JSONフォーマット例:
             const period = state.graphPeriod;
             const slicedLogs = state.weightLogs.slice(-period);
 
-            weightChart.data.labels = slicedLogs.map(l => l.date.slice(5)); // MM-DD
+            weightChart.data.labels = slicedLogs.map(l => l.date.slice(5));
             weightChart.data.datasets[0].data = slicedLogs.map(l => l.weight);
             weightChart.update();
         }
@@ -651,7 +653,7 @@ JSONフォーマット例:
         function saveSettings() {
             state.apiKey = document.getElementById('api-key-input').value.trim();
             state.targetWeight = parseFloat(document.getElementById('target-weight-input').value) || 55.0;
-            state.targetCalories = parseInt(document.getElementById('target-calorie-input').value) || 1800;
+            state.targetCalories = parseInt(document.getElementById('target-calorie-input').value) || 1500;
 
             localStorage.setItem('diet_gemini_api_key', state.apiKey);
             localStorage.setItem('diet_target_weight', state.targetWeight);
