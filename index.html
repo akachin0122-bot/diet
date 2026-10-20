@@ -133,24 +133,21 @@
                 <!-- PFCバランス -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">選択日のPFCバランス (実績 / 目標)</span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">選択日のPFCバランス</span>
                         <i class="fa-solid fa-chart-pie text-indigo-500"></i>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-center my-1">
                         <div class="bg-slate-50 p-1.5 rounded-lg">
                             <div class="text-[10px] text-slate-400">P (タンパク質)</div>
                             <div class="text-sm font-bold text-slate-700"><span id="p-val">0</span>g</div>
-                            <div class="text-[10px] text-slate-400">目標: <span id="target-p-val">75</span>g</div>
                         </div>
                         <div class="bg-slate-50 p-1.5 rounded-lg">
                             <div class="text-[10px] text-slate-400">F (脂質)</div>
                             <div class="text-sm font-bold text-slate-700"><span id="f-val">0</span>g</div>
-                            <div class="text-[10px] text-slate-400">目標: <span id="target-f-val">42</span>g</div>
                         </div>
                         <div class="bg-slate-50 p-1.5 rounded-lg">
                             <div class="text-[10px] text-slate-400">C (炭水化物)</div>
                             <div class="text-sm font-bold text-slate-700"><span id="c-val">0</span>g</div>
-                            <div class="text-[10px] text-slate-400">目標: <span id="target-c-val">206</span>g</div>
                         </div>
                     </div>
                 </div>
@@ -179,7 +176,7 @@
                     <span id="trainer-advice-text">分析中...</span>
                 </div>
 
-                <!-- コンビニ・外食お助けクイック相談 -->
+                <!-- 新機能：コンビニ・外食お助けクイック相談 -->
                 <div class="pt-2 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
                     <span class="text-xs font-bold text-amber-100 flex items-center gap-1">
                         <i class="fa-solid fa-store"></i> 外食・コンビニのおすすめ相談:
@@ -198,9 +195,9 @@
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
-                        <span>AI食事カロリー自動計算 & アドバイス</span>
+                        <span>AI食事カロリー自動計算</span>
                     </h2>
-                    <span class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-0.5 rounded-full font-medium">Gemini AI</span>
+                    <span class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-0.5 rounded-full font-medium">高速化モード</span>
                 </div>
 
                 <!-- AI入力フォーム -->
@@ -230,20 +227,10 @@
                     </div>
                 </div>
 
-       <!-- AI解析結果カード -->
+     <!-- AI解析結果カード -->
                 <div id="ai-result-card" class="hidden bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
-                    <div id="ai-advice-box" class="bg-white border border-amber-200/80 rounded-xl p-3 shadow-sm flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-sm">
-                            <i class="fa-solid fa-comment-dots"></i>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="text-xs font-bold text-amber-800">AIからのアドバイス & メッセージ</div>
-                            <p id="ai-advice-text" class="text-xs text-slate-700 leading-relaxed">解析中...</p>
-                        </div>
-                    </div>
-
                     <div class="flex items-center justify-between pt-1">
-                        <span class="text-xs font-bold text-slate-700">推定カロリー (修正可能)</span>
+                        <span class="text-xs font-bold text-slate-700">推定カロリー & PFC (修正可能)</span>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
@@ -422,7 +409,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('selected-date-picker').value = state.selectedDate;
-            updateTargetPFCDisplay();
         });
 
         function setTodayDate() {
@@ -431,7 +417,7 @@
             updateAppView();
         }
 
- function shiftSelectedDate(offsetDays) {
+        function shiftSelectedDate(offsetDays) {
             const [y, m, d] = state.selectedDate.split('-').map(Number);
             const dateObj = new Date(y, m - 1, d);
             dateObj.setDate(dateObj.getDate() + offsetDays);
@@ -466,8 +452,7 @@
                 document.getElementById('pin-input').value = '';
             }
         }
-
-        function lockApp() {
+function lockApp() {
             document.getElementById('main-content').classList.add('hidden');
             document.getElementById('login-modal').classList.remove('hidden');
             document.getElementById('pin-input').value = '';
@@ -477,20 +462,6 @@
         function initApp() {
             setTodayDate();
             initChart();
-            updateTargetPFCDisplay();
-        }
-
-        function updateTargetPFCDisplay() {
-            // カロリーに応じた目標PFC計算 (P:20%, F:25%, C:55% をベースにグラム換算)
-            // P: 1g=4kcal, F: 1g=9kcal, C: 1g=4kcal
-            const targetCal = state.targetCalories;
-            const targetP = Math.round((targetCal * 0.20) / 4);
-            const targetF = Math.round((targetCal * 0.25) / 9);
-            const targetC = Math.round((targetCal * 0.55) / 4);
-
-            document.getElementById('target-p-val').innerText = targetP;
-            document.getElementById('target-f-val').innerText = targetF;
-            document.getElementById('target-c-val').innerText = targetC;
         }
 
         function updateAppView() {
@@ -498,7 +469,6 @@
             renderFoodLogs();
             updateDateNotice();
             loadDataForSelectedDate();
-            updateTargetPFCDisplay();
         }
 
         function updateDateNotice() {
@@ -680,7 +650,8 @@ ${foodListStr}
                 btn.innerHTML = `<i class="fa-solid fa-comments"></i> <span>総合アドバイスをもらう</span>`;
             }
         }
-// コンビニ・外食お助け相談機能
+
+  // コンビニ・外食お助け相談機能
         async function askConvenience(placeName) {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -718,6 +689,7 @@ ${foodListStr}
             }
         }
 
+        // 食事の高速カロリー解析（アドバイス生成を除外して爆速化）
         async function analyzeFoodWithAI() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -734,12 +706,12 @@ ${foodListStr}
 
             const btn = document.getElementById('ai-analyze-btn');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 解析 & AI分析中...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 解析中...`;
 
             try {
                 const promptText = `
 ユーザーが食べた食事に関するテキストまたは画像です。
-食品名、推定総カロリー(kcal)、推定タンパク質(P:g)、脂質(F:g)、炭水化物(C:g)、そしてダイエッターを温かく褒めたりアドバイスしたりする短い応援メッセージ(advice: 100文字程度、親しみやすい絵文字つき)を以下のJSON形式でのみ返してください。
+食品名、推定総カロリー(kcal)、推定タンパク質(P:g)、脂質(F:g)、炭水化物(C:g)のみを以下のJSON形式でのみ返してください。
 
 JSONフォーマット例:
 {
@@ -747,8 +719,7 @@ JSONフォーマット例:
   "calories": 420,
   "p": 15,
   "f": 12,
-  "c": 60,
-  "advice": "バランスが素晴らしいですね！しっかりタンパク質を補給できていて最高です✨"
+  "c": 60
 }
 入力テキスト: ${textInput}
 `;
@@ -787,7 +758,6 @@ JSONフォーマット例:
                     document.getElementById('food-f-input').value = result.f || 0;
                     document.getElementById('food-c-input').value = result.c || 0;
 
-                    document.getElementById('ai-advice-text').innerText = result.advice || "美味しそうな食事ですね！しっかり記録して頑張りましょう👍";
                     document.getElementById('ai-result-card').classList.remove('hidden');
                 } else {
                     alert('AIからの応答を解析できませんでした。手動で入力してください。');
