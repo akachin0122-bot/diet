@@ -193,7 +193,7 @@
                 </div>
             </section>
 
-     <!-- AI食事記録セクション -->
+            <!-- AI食事記録セクション -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
@@ -203,8 +203,20 @@
                     <span class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-0.5 rounded-full font-medium">高速化モード</span>
                 </div>
 
+                <!-- よく食べるもの（お気に入り）クイック登録バー -->
+                <div class="space-y-1.5 pt-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                            <i class="fa-solid fa-star text-amber-400"></i> よく食べるもの（ワンタップ登録）:
+                        </span>
+                    </div>
+                    <div id="favorites-container" class="flex flex-wrap gap-1.5 min-h-[32px] items-center">
+                        <!-- JavaScriptで動的生成 -->
+                    </div>
+                </div>
+
                 <!-- AI入力フォーム -->
-                <div class="space-y-3">
+                <div class="space-y-3 pt-2 border-t border-slate-100">
                     <div class="relative">
                         <textarea id="ai-food-input" rows="2" placeholder="食べたものを入力（例: 納豆ご飯と目玉焼き、味噌汁）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none resize-none transition"></textarea>
                     </div>
@@ -266,7 +278,7 @@
                 </div>
             </section>
 
-            <!-- 選択日の食事ログ・歩数・体重・コンディション記録 -->
+      <!-- 選択日の食事ログ・歩数・体重・コンディション記録 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 食事ログ一覧 -->
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
@@ -372,7 +384,7 @@
                 <div>
                     <label class="text-xs font-bold text-slate-700">1日の目標カロリー (kcal)</label>
                     <input type="number" id="target-calorie-input" value="1500" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm mt-1 outline-none">
-                    <p class="text-[11px] text-slate-400 mt-1">※この目標カロリーを元にPFCバランス（タンパク質・脂質・炭水化物）の目標値が自動計算されます。</p>
+                    <p class="text-[11px] text-slate-400 mt-1">※この目標カロリーを元にPFCバランスの目標値が自動計算されます。</p>
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
@@ -394,14 +406,22 @@
             const dd = String(jstDate.getDate()).padStart(2, '0');
             return `${yyyy}-${mm}-${dd}`;
         }
-const PIN_CODE = "0525";
+
+        const PIN_CODE = "0525";
         let state = {
-            apiKey: localStorage.getItem('diet_gemini_api_key') || '',
+            apiKey: localStorage.getItem('diet_gemini_api_key'] || '',
             targetWeight: parseFloat(localStorage.getItem('diet_target_weight')) || 55.0,
             targetCalories: parseInt(localStorage.getItem('diet_target_calories')) || 1500,
             foodLogs: JSON.parse(localStorage.getItem('diet_food_logs')) || [],
             weightLogs: JSON.parse(localStorage.getItem('diet_weight_logs')) || [],
             activityLogs: JSON.parse(localStorage.getItem('diet_activity_logs')) || [],
+            // よく食べるもの（お気に入り）の初期リスト
+            favoriteFoods: JSON.parse(localStorage.getItem('diet_favorite_foods')) || [
+                { name: "プロテイン", calories: 120, p: 24, f: 2, c: 3 },
+                { name: "納豆ご飯", calories: 320, p: 12, f: 5, c: 55 },
+                { name: "サラダチキン", calories: 130, p: 27, f: 2, c: 0 },
+                { name: "ゆで卵", calories: 75, p: 6, f: 5, c: 0 }
+            ],
             selectedImageBase64: null,
             graphPeriod: 7,
             selectedDate: getJSTDateString()
@@ -411,6 +431,7 @@ const PIN_CODE = "0525";
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('selected-date-picker').value = state.selectedDate;
+            renderFavorites();
         });
 
         function setTodayDate() {
@@ -454,8 +475,7 @@ const PIN_CODE = "0525";
                 document.getElementById('pin-input').value = '';
             }
         }
-
-        function lockApp() {
+function lockApp() {
             document.getElementById('main-content').classList.add('hidden');
             document.getElementById('login-modal').classList.remove('hidden');
             document.getElementById('pin-input').value = '';
@@ -465,6 +485,7 @@ const PIN_CODE = "0525";
         function initApp() {
             setTodayDate();
             initChart();
+            renderFavorites();
         }
 
         function updateAppView() {
@@ -529,10 +550,6 @@ const PIN_CODE = "0525";
             const totalF = targetFoods.reduce((sum, f) => sum + (f.f || 0), 0);
             const totalC = targetFoods.reduce((sum, f) => sum + (f.c || 0), 0);
 
-            // PFC目標値の自動計算（目標カロリーをベースに算出）
-            // P: カロリーの約25% (1g=4kcal) -> 目标カロリー * 0.25 / 4
-            // F: カロリーの約22% (1g=9kcal) -> 目標カロリー * 0.22 / 9
-            // C: 残りのカロリー (1g=4kcal) -> (目標カロリー - P*4 - F*9) / 4
             const targetCal = state.targetCalories;
             const targetP = Math.round((targetCal * 0.25) / 4);
             const targetF = Math.round((targetCal * 0.22) / 9);
@@ -568,6 +585,50 @@ const PIN_CODE = "0525";
                     diffEl.className = "font-medium text-emerald-600";
                 }
             }
+        }
+
+        // よく食べるもの（お気に入り）の描画
+        function renderFavorites() {
+            const container = document.getElementById('favorites-container');
+            if (!container) return;
+
+            if (state.favoriteFoods.length === 0) {
+                container.innerHTML = `<span class="text-[11px] text-slate-400">よく食べるものが登録されていません</span>`;
+                return;
+            }
+
+            container.innerHTML = state.favoriteFoods.map((fav, index) => `
+                <button onclick="quickAddFavorite(${index})" class="group relative bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-plus text-[10px] text-amber-600"></i>
+                    <span>${fav.name}</span>
+                    <span class="text-[10px] text-amber-600 font-normal">(${fav.calories}kcal)</span>
+                </button>
+            `).join('');
+        }
+
+        // お気に入りからワンタップで選択日に直接追加
+        function quickAddFavorite(index) {
+            const fav = state.favoriteFoods[index];
+            if (!fav) return;
+
+            const targetDate = state.selectedDate;
+            const newLog = {
+                id: Date.now(),
+                date: targetDate,
+                time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+                name: fav.name,
+                calories: fav.calories,
+                category: '間食', // デフォルト区分
+                p: fav.p || 0,
+                f: fav.f || 0,
+                c: fav.c || 0
+            };
+
+            state.foodLogs.push(newLog);
+            localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
+
+            updateDashboard();
+            renderFoodLogs();
         }
 
         function previewImage(event) {
@@ -801,6 +862,13 @@ JSONフォーマット例:
             state.foodLogs.push(newLog);
             localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
 
+            // もしまだお気に入りに入っていなければ、よく食べるものリストに自動追加するおまけ機能
+            if (!state.favoriteFoods.some(fav => fav.name === name)) {
+                state.favoriteFoods.push({ name, calories, p, f, c });
+                localStorage.setItem('diet_favorite_foods', JSON.stringify(state.favoriteFoods));
+                renderFavorites();
+            }
+
             document.getElementById('ai-food-input').value = '';
             document.getElementById('ai-result-card').classList.add('hidden');
             removeImage();
@@ -907,7 +975,7 @@ JSONフォーマット例:
                         pointBackgroundColor: '#10b981'
                     }]
                 },
-                options: {
+        options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
