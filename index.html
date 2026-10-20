@@ -410,7 +410,7 @@
 
         const PIN_CODE = "0525";
         let state = {
-            apiKey: localStorage.getItem('diet_gemini_api_key'] || '',
+                        apiKey: localStorage.getItem('diet_gemini_api_key') || '',
             targetWeight: parseFloat(localStorage.getItem('diet_target_weight')) || 55.0,
             targetCalories: parseInt(localStorage.getItem('diet_target_calories')) || 1500,
             foodLogs: JSON.parse(localStorage.getItem('diet_food_logs')) || [],
