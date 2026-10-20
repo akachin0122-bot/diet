@@ -130,24 +130,27 @@
                     </div>
                 </div>
 
-                <!-- PFCバランス -->
+                <!-- PFCバランス（自動計算目標値付き） -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">選択日のPFCバランス</span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">PFCバランス (実績 / 目標)</span>
                         <i class="fa-solid fa-chart-pie text-indigo-500"></i>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-center my-1">
                         <div class="bg-slate-50 p-1.5 rounded-lg">
                             <div class="text-[10px] text-slate-400">P (タンパク質)</div>
-                            <div class="text-sm font-bold text-slate-700"><span id="p-val">0</span>g</div>
+                            <div class="text-xs font-bold text-slate-700"><span id="p-val">0</span>g</div>
+                            <div class="text-[9px] text-slate-400">目標: <span id="p-target">0</span>g</div>
                         </div>
                         <div class="bg-slate-50 p-1.5 rounded-lg">
                             <div class="text-[10px] text-slate-400">F (脂質)</div>
-                            <div class="text-sm font-bold text-slate-700"><span id="f-val">0</span>g</div>
+                            <div class="text-xs font-bold text-slate-700"><span id="f-val">0</span>g</div>
+                            <div class="text-[9px] text-slate-400">目標: <span id="f-target">0</span>g</div>
                         </div>
                         <div class="bg-slate-50 p-1.5 rounded-lg">
                             <div class="text-[10px] text-slate-400">C (炭水化物)</div>
-                            <div class="text-sm font-bold text-slate-700"><span id="c-val">0</span>g</div>
+                            <div class="text-xs font-bold text-slate-700"><span id="c-val">0</span>g</div>
+                            <div class="text-[9px] text-slate-400">目標: <span id="c-target">0</span>g</div>
                         </div>
                     </div>
                 </div>
@@ -176,7 +179,7 @@
                     <span id="trainer-advice-text">分析中...</span>
                 </div>
 
-                <!-- 新機能：コンビニ・外食お助けクイック相談 -->
+                <!-- コンビニ・外食お助けクイック相談 -->
                 <div class="pt-2 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
                     <span class="text-xs font-bold text-amber-100 flex items-center gap-1">
                         <i class="fa-solid fa-store"></i> 外食・コンビニのおすすめ相談:
@@ -190,7 +193,7 @@
                 </div>
             </section>
 
-            <!-- AI食事記録セクション -->
+     <!-- AI食事記録セクション -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
@@ -227,7 +230,7 @@
                     </div>
                 </div>
 
-     <!-- AI解析結果カード -->
+                <!-- AI解析結果カード -->
                 <div id="ai-result-card" class="hidden bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
                     <div class="flex items-center justify-between pt-1">
                         <span class="text-xs font-bold text-slate-700">推定カロリー & PFC (修正可能)</span>
@@ -354,14 +357,13 @@
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800">設定 & Gemini APIキー</h3>
+                <h3 class="font-bold text-slate-800">設定 & 目標値</h3>
                 <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600">×</button>
             </div>
             <div class="space-y-3">
                 <div>
                     <label class="text-xs font-bold text-slate-700">Gemini API Key (無料)</label>
                     <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full border border-slate-200 rounded-xl p-2.5 text-sm mt-1 outline-none focus:border-amber-500">
-                    <p class="text-[11px] text-slate-400 mt-1">Google AI Studioで取得した無料のAPIキーを入力してください。キーはブラウザに安全に保存されます。</p>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-700">目標体重 (kg)</label>
@@ -370,6 +372,7 @@
                 <div>
                     <label class="text-xs font-bold text-slate-700">1日の目標カロリー (kcal)</label>
                     <input type="number" id="target-calorie-input" value="1500" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm mt-1 outline-none">
+                    <p class="text-[11px] text-slate-400 mt-1">※この目標カロリーを元にPFCバランス（タンパク質・脂質・炭水化物）の目標値が自動計算されます。</p>
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
@@ -391,8 +394,7 @@
             const dd = String(jstDate.getDate()).padStart(2, '0');
             return `${yyyy}-${mm}-${dd}`;
         }
-
-        const PIN_CODE = "0525";
+const PIN_CODE = "0525";
         let state = {
             apiKey: localStorage.getItem('diet_gemini_api_key') || '',
             targetWeight: parseFloat(localStorage.getItem('diet_target_weight')) || 55.0,
@@ -452,7 +454,8 @@
                 document.getElementById('pin-input').value = '';
             }
         }
-function lockApp() {
+
+        function lockApp() {
             document.getElementById('main-content').classList.add('hidden');
             document.getElementById('login-modal').classList.remove('hidden');
             document.getElementById('pin-input').value = '';
@@ -526,20 +529,28 @@ function lockApp() {
             const totalF = targetFoods.reduce((sum, f) => sum + (f.f || 0), 0);
             const totalC = targetFoods.reduce((sum, f) => sum + (f.c || 0), 0);
 
-            const aRecord = state.activityLogs.find(a => a.date === selectedDate);
-            const steps = aRecord ? (aRecord.steps || 0) : 0;
-            const burnCal = Math.round(steps * 0.04);
-            const netCal = totalCal - burnCal;
+            // PFC目標値の自動計算（目標カロリーをベースに算出）
+            // P: カロリーの約25% (1g=4kcal) -> 目标カロリー * 0.25 / 4
+            // F: カロリーの約22% (1g=9kcal) -> 目標カロリー * 0.22 / 9
+            // C: 残りのカロリー (1g=4kcal) -> (目標カロリー - P*4 - F*9) / 4
+            const targetCal = state.targetCalories;
+            const targetP = Math.round((targetCal * 0.25) / 4);
+            const targetF = Math.round((targetCal * 0.22) / 9);
+            const targetC = Math.max(0, Math.round((targetCal - (targetP * 4) - (targetF * 9)) / 4));
 
             document.getElementById('summary-calories').innerText = totalCal;
-            document.getElementById('summary-burn-calories').innerText = burnCal;
-            document.getElementById('summary-net-calories').innerText = netCal;
+            document.getElementById('summary-burn-calories').innerText = Math.round((state.activityLogs.find(a => a.date === selectedDate)?.steps || 0) * 0.04);
+            document.getElementById('summary-net-calories').innerText = totalCal - Math.round((state.activityLogs.find(a => a.date === selectedDate)?.steps || 0) * 0.04);
 
             document.getElementById('p-val').innerText = totalP;
             document.getElementById('f-val').innerText = totalF;
             document.getElementById('c-val').innerText = totalC;
 
-            const progress = Math.min(100, (totalCal / state.targetCalories) * 100);
+            document.getElementById('p-target').innerText = targetP;
+            document.getElementById('f-target').innerText = targetF;
+            document.getElementById('c-target').innerText = targetC;
+
+            const progress = Math.min(100, (totalCal / targetCal) * 100);
             document.getElementById('calorie-progress-bar').style.width = `${progress}%`;
 
             if (state.weightLogs.length > 0) {
@@ -578,7 +589,6 @@ function lockApp() {
             document.getElementById('image-preview-container').classList.add('hidden');
         }
 
-        // パーソナルトレーナーAIアドバイス（水分・お通じ情報も含めて分析）
         async function getTrainerAdvice() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -631,7 +641,7 @@ ${foodListStr}
 食事やカロリーだけでなく、水分補給やお通じの状態へのねぎらい・具体的なアドバイスも交えて褒めて励ましてください。
 `;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -651,7 +661,6 @@ ${foodListStr}
             }
         }
 
-  // コンビニ・外食お助け相談機能
         async function askConvenience(placeName) {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -689,7 +698,6 @@ ${foodListStr}
             }
         }
 
-        // 食事の高速カロリー解析（アドバイス生成を除外して爆速化）
         async function analyzeFoodWithAI() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
@@ -839,7 +847,6 @@ JSONフォーマット例:
             renderFoodLogs();
         }
 
-        // コンディション（歩数・水分・お通じ）保存
         function saveConditionRecord(e) {
             e.preventDefault();
             const steps = parseInt(document.getElementById('steps-input').value) || 0;
@@ -881,7 +888,8 @@ JSONフォーマット例:
             updateChart();
             alert(`${targetDate} の体重を保存しました！`);
         }
-function initChart() {
+
+        function initChart() {
             const ctx = document.getElementById('weightChart').getContext('2d');
             weightChart = new Chart(ctx, {
                 type: 'line',
