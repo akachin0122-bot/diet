@@ -87,7 +87,7 @@
                 <button onclick="setTodayDate()" class="underline hover:text-indigo-900">今日に戻る</button>
             </div>
 
-                      <!-- 🐾 水色枠サイズ！ド迫力の相棒ダイエッと猫ちゃんカード -->
+            <!-- 🐾 水色枠サイズ！ド迫力の相棒ダイエッと猫ちゃんカード -->
             <section class="bg-amber-50/80 border-2 border-amber-200/90 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
                 <!-- 猫ちゃんGIF（横幅いっぱいのワイド＆大きな高さ） -->
                 <div class="w-full h-56 sm:h-64 bg-amber-100 rounded-xl border-2 border-amber-300 flex items-center justify-center overflow-hidden shadow-inner relative">
@@ -98,7 +98,7 @@
                 <div class="space-y-2 text-center">
                     <div class="flex items-center justify-center gap-2">
                         <span class="bg-amber-200 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full">相棒ネコ</span>
-                        <h2 id="cat-status-title" class="text-base font-bold text-slate-800">モチモチ状態 (60kg台)</h2>
+                        <h2 id="cat-status-title" class="text-base font-bold text-slate-800">モチモチ状態</h2>
                     </div>
                     <!-- 猫ちゃんの呟き吹き出し -->
                     <div class="relative bg-white border border-amber-200 rounded-xl p-3 text-xs sm:text-sm font-medium text-slate-700 shadow-sm leading-relaxed">
@@ -107,24 +107,8 @@
                 </div>
             </section>
 
-            <!-- サマリーカード -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- 体重サマリー -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">最新の体重</span>
-                        <i class="fa-solid fa-weight-scale text-slate-400"></i>
-                    </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="summary-weight" class="text-3xl font-black text-slate-800">--</span>
-                        <span class="text-sm font-medium text-slate-500">kg</span>
-                    </div>
-                    <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
-                        <span>目標: <span id="summary-target-weight">--</span> kg</span>
-                        <span id="summary-weight-diff" class="font-medium text-emerald-600">--</span>
-                    </div>
-                </div>
-
+            <!-- サマリーカード (2列に変更：カロリーバランス ＆ PFCバランス) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- カロリー＆歩数バランスサマリー -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
@@ -214,7 +198,7 @@
                 </div>
             </section>
 
-   <!-- AI食事記録セクション -->
+            <!-- AI食事記録セクション -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
@@ -236,7 +220,7 @@
                     </div>
                 </div>
 
-                <!-- AI入力フォーム -->
+     <!-- AI入力フォーム -->
                 <div class="space-y-3 pt-2 border-t border-slate-100">
                     <div class="relative">
                         <textarea id="ai-food-input" rows="2" placeholder="食べたものを入力（例: 納豆ご飯と目玉焼き、味噌汁）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none resize-none transition"></textarea>
@@ -375,8 +359,8 @@
                 </div>
             </div>
 
-            <!-- 体重推移グラフ -->
-            <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
+            <!-- 体重推移グラフ & 最新体重サマリー（グラフのすぐ上へ移動） -->
+            <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-slate-800 text-sm">体重推移グラフ</h3>
                     <div class="flex gap-1 text-xs">
@@ -384,6 +368,31 @@
                         <button onclick="setGraphPeriod(30)" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 font-medium">30日間</button>
                     </div>
                 </div>
+
+                <!-- 最新体重サマリー (グラフの上のバーとして配置) -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-weight-scale"></i>
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">最新の体重</span>
+                            <div class="flex items-baseline gap-1">
+                                <span id="summary-weight" class="text-2xl font-black text-slate-800">--</span>
+                                <span class="text-xs font-medium text-slate-500">kg</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right sm:text-right space-y-0.5">
+                        <div class="text-xs text-slate-500">
+                            目標: <span id="summary-target-weight" class="font-bold text-slate-700">--</span> kg (<span id="summary-weight-diff" class="font-bold text-emerald-600">--</span>)
+                        </div>
+                        <div id="summary-max-diff" class="text-[11px] text-indigo-600 font-medium">
+                            最高体重から: --
+                        </div>
+                    </div>
+                </div>
+
                 <div class="h-64 relative">
                     <canvas id="weightChart"></canvas>
                 </div>
@@ -459,13 +468,13 @@
             document.getElementById('selected-date-picker').value = state.selectedDate;
             renderFavorites();
         });
-function setTodayDate() {
+
+        function setTodayDate() {
             state.selectedDate = getJSTDateString();
             document.getElementById('selected-date-picker').value = state.selectedDate;
             updateAppView();
         }
-
-        function shiftSelectedDate(offsetDays) {
+function shiftSelectedDate(offsetDays) {
             const [y, m, d] = state.selectedDate.split('-').map(Number);
             const dateObj = new Date(y, m - 1, d);
             dateObj.setDate(dateObj.getDate() + offsetDays);
@@ -573,11 +582,9 @@ function setTodayDate() {
             const titleEl = document.getElementById('cat-status-title');
             const speechEl = document.getElementById('cat-speech-text');
 
-            // ランダムに1〜3を選ぶ (アプリを開くたび、または更新のたびに変化)
             const randomCatNum = Math.floor(Math.random() * 3) + 1;
             imgEl.src = `cat-${randomCatNum}.gif`;
 
-            // セリフのバリエーション
             const speechList = [
                 "「ふぁあ…今日もゴロゴロしてたいニャ。まぁ焦らずボチボチやりなよ」",
                 "「お腹いっぱいで動きたくないニャ…。でも記録くらいはちゃんとつけなよ？」",
@@ -587,13 +594,13 @@ function setTodayDate() {
             const randomSpeech = speechList[Math.floor(Math.random() * speechList.length)];
 
             if (!currentWeight || currentWeight >= 60.0) {
-                titleEl.innerText = "モチモチ状態 ";
+                titleEl.innerText = "モチモチ状態";
                 speechEl.innerText = randomSpeech;
             } else if (currentWeight >= 57.5) {
                 titleEl.innerText = "まだまだぽっちゃり";
                 speechEl.innerText = "「お、少しお腹が軽くなってきた気がするニャ？サボっちゃダメだよ」";
             } else if (currentWeight >= 53.0) {
-                titleEl.innerText = "まだがんばれ！ ";
+                titleEl.innerText = "まだがんばれ！";
                 speechEl.innerText = "「やるじゃん！あたしの動きも軽やかになってきたわ。目標まであとちょっと！」";
             } else {
                 titleEl.innerText = "目標達成！";
@@ -635,19 +642,31 @@ function setTodayDate() {
                 document.getElementById('summary-weight').innerText = latestWeight.toFixed(1);
                 document.getElementById('summary-target-weight').innerText = state.targetWeight.toFixed(1);
 
+                // 目標までの差
                 const diff = latestWeight - state.targetWeight;
                 const diffEl = document.getElementById('summary-weight-diff');
                 if (diff > 0) {
                     diffEl.innerText = `あと +${diff.toFixed(1)}kg`;
-                    diffEl.className = "font-medium text-amber-600";
+                    diffEl.className = "font-bold text-amber-600";
                 } else {
                     diffEl.innerText = `目標達成！`;
-                    diffEl.className = "font-medium text-emerald-600";
+                    diffEl.className = "font-bold text-emerald-600";
+                }
+
+                // 最高体重から何kg減量したかの計算
+                const maxWeight = Math.max(...state.weightLogs.map(w => w.weight));
+                const lossFromMax = maxWeight - latestWeight;
+                const maxDiffEl = document.getElementById('summary-max-diff');
+                if (lossFromMax > 0) {
+                    maxDiffEl.innerText = `最高(${maxWeight.toFixed(1)}kg)から -${lossFromMax.toFixed(1)}kg 減量中✨`;
+                } else {
+                    maxDiffEl.innerText = `最高体重更新中 (現在 ${maxWeight.toFixed(1)}kg)`;
                 }
 
                 updateCatCharacter(latestWeight);
             } else {
                 updateCatCharacter(60.0);
+                document.getElementById('summary-max-diff').innerText = `最高体重から: --`;
             }
         }
 
@@ -703,7 +722,8 @@ function setTodayDate() {
             updateDashboard();
             renderFoodLogs();
         }
-function previewImage(event) {
+
+     function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -756,7 +776,7 @@ function previewImage(event) {
             try {
                 const prompt = `
 あなたはユーザーの相棒である「ちょっぴりだらしなくてサバサバした口調のダイエッと三毛猫」です。
-語尾は「〜ニャ」「〜でしょ」「〜じゃない？」など、親しみやすくちょっとサバサバした猫口調にしてください。
+語尾は具「〜ニャ」「〜でしょ」「〜じゃない？」など、親しみやすくちょっとサバサバした猫口調にしてください。
 以下の「${selectedDate}」のユーザーのデータを元に、150文字程度でコメント（アドバイスやねぎらい）を教えてください。
 
 【目標】
@@ -910,8 +930,7 @@ JSONフォーマット例:
                 btn.innerHTML = `<i class="fa-solid fa-bolt"></i> <span>AIでカロリー解析</span>`;
             }
         }
-
-        function saveFoodRecord() {
+function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
             const category = document.getElementById('food-category-select').value;
@@ -979,7 +998,8 @@ JSONフォーマット例:
                 </div>
             `).join('');
         }
-function deleteFoodLog(id) {
+
+        function deleteFoodLog(id) {
             state.foodLogs = state.foodLogs.filter(f => f.id !== id);
             localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
             updateDashboard();
