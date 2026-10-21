@@ -87,19 +87,21 @@
                 <button onclick="setTodayDate()" class="underline hover:text-indigo-900">今日に戻る</button>
             </div>
 
-            <!-- 🐾 ランダムに変わる！相棒のダイエッと猫ちゃんカード -->
-            <section class="bg-amber-50/80 border-2 border-amber-200/90 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-center gap-4">
-                <div class="w-40 h-40 sm:w-48 sm:h-48 flex-shrink-0 bg-amber-100 rounded-2xl border-2 border-amber-300 flex items-center justify-center overflow-hidden shadow-inner relative">
-                    <!-- ランダム表示されるGIFのimgタグ -->
+                      <!-- 🐾 水色枠サイズ！ド迫力の相棒ダイエッと猫ちゃんカード -->
+            <section class="bg-amber-50/80 border-2 border-amber-200/90 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                <!-- 猫ちゃんGIF（横幅いっぱいのワイド＆大きな高さ） -->
+                <div class="w-full h-56 sm:h-64 bg-amber-100 rounded-xl border-2 border-amber-300 flex items-center justify-center overflow-hidden shadow-inner relative">
                     <img id="cat-avatar-img" src="cat-1.gif" alt="ダイエッと猫ちゃん" class="w-full h-full object-cover">
                 </div>
-                <div class="flex-1 text-center sm:text-left space-y-1.5">
-                    <div class="flex items-center justify-center sm:justify-start gap-2">
-                        <span class="bg-amber-200 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">相棒ネコ</span>
+                
+                <!-- 下部に配置するステータス＆セリフ -->
+                <div class="space-y-2 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="bg-amber-200 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full">相棒ネコ</span>
                         <h2 id="cat-status-title" class="text-base font-bold text-slate-800">モチモチ状態 (60kg台)</h2>
                     </div>
                     <!-- 猫ちゃんの呟き吹き出し -->
-                    <div class="relative bg-white border border-amber-200 rounded-xl p-3 text-xs font-medium text-slate-700 shadow-sm leading-relaxed">
+                    <div class="relative bg-white border border-amber-200 rounded-xl p-3 text-xs sm:text-sm font-medium text-slate-700 shadow-sm leading-relaxed">
                         <span id="cat-speech-text">「ふぁあ…今日もゴロゴロしてたいニャ。まぁ焦らずボチボチやりなよ」</span>
                     </div>
                 </div>
