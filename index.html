@@ -587,16 +587,16 @@ function setTodayDate() {
             const randomSpeech = speechList[Math.floor(Math.random() * speechList.length)];
 
             if (!currentWeight || currentWeight >= 60.0) {
-                titleEl.innerText = "モチモチ状態 (60kg台)";
+                titleEl.innerText = "モチモチ状態 ";
                 speechEl.innerText = randomSpeech;
             } else if (currentWeight >= 57.5) {
-                titleEl.innerText = "すっきり準備中 (58〜59kg台)";
+                titleEl.innerText = "まだまだぽっちゃり";
                 speechEl.innerText = "「お、少しお腹が軽くなってきた気がするニャ？サボっちゃダメだよ」";
-            } else if (currentWeight >= 55.0) {
-                titleEl.innerText = "かなりスマート (55〜57kg台)";
+            } else if (currentWeight >= 53.0) {
+                titleEl.innerText = "まだがんばれ！ ";
                 speechEl.innerText = "「やるじゃん！あたしの動きも軽やかになってきたわ。目標まであとちょっと！」";
             } else {
-                titleEl.innerText = "目標達成モデルスタイル (55kg未満)";
+                titleEl.innerText = "目標達成！";
                 speechEl.innerText = "「すごーい！目標達成ニャ✨ フッ、あたしの可愛さも完璧でしょ？」";
             }
         }
