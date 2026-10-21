@@ -87,10 +87,11 @@
                 <button onclick="setTodayDate()" class="underline hover:text-indigo-900">今日に戻る</button>
             </div>
 
-            <!-- 🐾 体重連動！相棒のダイエッと猫ちゃんカード -->
+            <!-- 🐾 ランダムに変わる！相棒のダイエッと猫ちゃんカード -->
             <section class="bg-amber-50/80 border-2 border-amber-200/90 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-center gap-4">
-                <div class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-amber-100 rounded-2xl border-2 border-amber-300 flex items-center justify-center text-5xl shadow-inner relative overflow-hidden">
-                    <span id="cat-avatar-icon">🐱</span>
+                <div class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-amber-100 rounded-2xl border-2 border-amber-300 flex items-center justify-center overflow-hidden shadow-inner relative">
+                    <!-- ランダム表示されるGIFのimgタグ -->
+                    <img id="cat-avatar-img" src="cat-1.gif" alt="ダイエッと猫ちゃん" class="w-full h-full object-cover">
                 </div>
                 <div class="flex-1 text-center sm:text-left space-y-1.5">
                     <div class="flex items-center justify-center sm:justify-start gap-2">
@@ -174,7 +175,7 @@
                 </div>
             </div>
 
-            <!-- パーソナルトレーナーAIアドバイスセクション（サバサバ猫ちゃん風） -->
+            <!-- パーソナルトレーナーAIアドバイスセクション -->
             <section class="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-md space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -211,7 +212,7 @@
                 </div>
             </section>
 
-          <!-- AI食事記録セクション -->
+   <!-- AI食事記録セクション -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
@@ -418,7 +419,8 @@
             </div>
         </div>
     </div>
-<!-- JavaScript ロジック -->
+
+    <!-- JavaScript ロジック -->
     <script>
         function getJSTDateString(dateObj = new Date()) {
             const jstOffset = 9 * 60;
@@ -455,8 +457,7 @@
             document.getElementById('selected-date-picker').value = state.selectedDate;
             renderFavorites();
         });
-
-        function setTodayDate() {
+function setTodayDate() {
             state.selectedDate = getJSTDateString();
             document.getElementById('selected-date-picker').value = state.selectedDate;
             updateAppView();
@@ -564,27 +565,36 @@
             input.value = current;
         }
 
-        // 🐾 体重に連動して猫ちゃんのアイコン・タイトル・セリフを更新する処理
+        // 🐾 アプリを開くたびに cat-1.gif / cat-2.gif / cat-3.gif からランダムで選ばれる処理
         function updateCatCharacter(currentWeight) {
-            const iconEl = document.getElementById('cat-avatar-icon');
+            const imgEl = document.getElementById('cat-avatar-img');
             const titleEl = document.getElementById('cat-status-title');
             const speechEl = document.getElementById('cat-speech-text');
 
+            // ランダムに1〜3を選ぶ (アプリを開くたび、または更新のたびに変化)
+            const randomCatNum = Math.floor(Math.random() * 3) + 1;
+            imgEl.src = `cat-${randomCatNum}.gif`;
+
+            // セリフのバリエーション
+            const speechList = [
+                "「ふぁあ…今日もゴロゴロしてたいニャ。まぁ焦らずボチボチやりなよ」",
+                "「お腹いっぱいで動きたくないニャ…。でも記録くらいはちゃんとつけなよ？」",
+                "「ねむい…。ダイエットなんて明日からでも遅くない気候だニャ〜」",
+                "「今日もダラダラ最高！…って、あんたはちゃんと動くのよ？」"
+            ];
+            const randomSpeech = speechList[Math.floor(Math.random() * speechList.length)];
+
             if (!currentWeight || currentWeight >= 60.0) {
-                iconEl.innerText = "🐖";
-                titleEl.innerText = "モチモチ状態 ";
-                speechEl.innerText = "「ふぁあ…今日もゴロゴロしてたいニャ。まぁ焦らずボチボチやりなよ」";
+                titleEl.innerText = "モチモチ状態 (60kg台)";
+                speechEl.innerText = randomSpeech;
             } else if (currentWeight >= 57.5) {
-                iconEl.innerText = "🐖";
-                titleEl.innerText = "すっきり準備中 ";
+                titleEl.innerText = "すっきり準備中 (58〜59kg台)";
                 speechEl.innerText = "「お、少しお腹が軽くなってきた気がするニャ？サボっちゃダメだよ」";
             } else if (currentWeight >= 55.0) {
-                iconEl.innerText = "😽";
-                titleEl.innerText = "かなりスマート ";
+                titleEl.innerText = "かなりスマート (55〜57kg台)";
                 speechEl.innerText = "「やるじゃん！あたしの動きも軽やかになってきたわ。目標まであとちょっと！」";
             } else {
-                iconEl.innerText = "😻";
-                titleEl.innerText = "目標達成モデルスタイル ";
+                titleEl.innerText = "目標達成モデルスタイル (55kg未満)";
                 speechEl.innerText = "「すごーい！目標達成ニャ✨ フッ、あたしの可愛さも完璧でしょ？」";
             }
         }
@@ -633,14 +643,12 @@
                     diffEl.className = "font-medium text-emerald-600";
                 }
 
-                // 猫ちゃんキャラクターの見た目と呟きを更新！
                 updateCatCharacter(latestWeight);
             } else {
                 updateCatCharacter(60.0);
             }
         }
 
-        // よく食べるもの（お気に入り）の描画（削除ボタン付き）
         function renderFavorites() {
             const container = document.getElementById('favorites-container');
             if (!container) return;
@@ -663,14 +671,13 @@
                 </div>
             `).join('');
         }
-    // お気に入りから削除する関数
+
         function deleteFavorite(index) {
             state.favoriteFoods.splice(index, 1);
             localStorage.setItem('diet_favorite_foods', JSON.stringify(state.favoriteFoods));
             renderFavorites();
         }
 
-        // お気に入りからワンタップで選択日に直接追加
         function quickAddFavorite(index) {
             const fav = state.favoriteFoods[index];
             if (!fav) return;
@@ -694,8 +701,7 @@
             updateDashboard();
             renderFoodLogs();
         }
-
-        function previewImage(event) {
+function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -902,7 +908,8 @@ JSONフォーマット例:
                 btn.innerHTML = `<i class="fa-solid fa-bolt"></i> <span>AIでカロリー解析</span>`;
             }
         }
-function saveFoodRecord() {
+
+        function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
             const category = document.getElementById('food-category-select').value;
@@ -970,8 +977,7 @@ function saveFoodRecord() {
                 </div>
             `).join('');
         }
-
-        function deleteFoodLog(id) {
+function deleteFoodLog(id) {
             state.foodLogs = state.foodLogs.filter(f => f.id !== id);
             localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
             updateDashboard();
