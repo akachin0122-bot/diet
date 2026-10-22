@@ -107,7 +107,7 @@
                 </div>
             </section>
 
-            <!-- サマリーカード (2列に変更：カロリーバランス ＆ PFCバランス) -->
+            <!-- サマリーカード (2列: カロリーバランス ＆ PFCバランス) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- カロリー＆歩数バランスサマリー -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
@@ -207,8 +207,7 @@
                     </h2>
                     <span class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-0.5 rounded-full font-medium">高速化モード</span>
                 </div>
-
-                <!-- よく食べるもの（お気に入り）クイック登録バー -->
+ <!-- よく食べるもの（お気に入り）クイック登録バー -->
                 <div class="space-y-1.5 pt-1">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
@@ -220,7 +219,7 @@
                     </div>
                 </div>
 
-     <!-- AI入力フォーム -->
+                <!-- AI入力フォーム -->
                 <div class="space-y-3 pt-2 border-t border-slate-100">
                     <div class="relative">
                         <textarea id="ai-food-input" rows="2" placeholder="食べたものを入力（例: 納豆ご飯と目玉焼き、味噌汁）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none resize-none transition"></textarea>
@@ -359,7 +358,7 @@
                 </div>
             </div>
 
-            <!-- 体重推移グラフ & 最新体重サマリー（グラフのすぐ上へ移動） -->
+            <!-- 体重推移グラフ & 最新体重サマリー -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-slate-800 text-sm">体重推移グラフ</h3>
@@ -400,8 +399,7 @@
 
         </main>
     </div>
-
-    <!-- APIキー＆設定モーダル -->
+ <!-- APIキー＆設定モーダル -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -474,7 +472,8 @@
             document.getElementById('selected-date-picker').value = state.selectedDate;
             updateAppView();
         }
-function shiftSelectedDate(offsetDays) {
+
+        function shiftSelectedDate(offsetDays) {
             const [y, m, d] = state.selectedDate.split('-').map(Number);
             const dateObj = new Date(y, m - 1, d);
             dateObj.setDate(dateObj.getDate() + offsetDays);
@@ -521,6 +520,7 @@ function shiftSelectedDate(offsetDays) {
             setTodayDate();
             initChart();
             renderFavorites();
+            checkAndFetchDailyCatSpeech(); // 🐾 1日1回自動で猫のセリフを取得する関数を呼び出し
         }
 
         function updateAppView() {
@@ -576,39 +576,91 @@ function shiftSelectedDate(offsetDays) {
             input.value = current;
         }
 
-        // 🐾 アプリを開くたびに cat-1.gif / cat-2.gif / cat-3.gif からランダムで選ばれる処理
-        function updateCatCharacter(currentWeight) {
+        // 🐾 猫ちゃんのキャラ切り替え ＆ 1日1回AIセリフ自動取得の管理
+        async function updateCatCharacter(currentWeight) {
             const imgEl = document.getElementById('cat-avatar-img');
             const titleEl = document.getElementById('cat-status-title');
             const speechEl = document.getElementById('cat-speech-text');
 
+            // 猫ちゃんGIFをランダムに選ぶ
             const randomCatNum = Math.floor(Math.random() * 3) + 1;
             imgEl.src = `cat-${randomCatNum}.gif`;
 
-            const speechList = [
+            if (!currentWeight || currentWeight >= 60.0) {
+                titleEl.innerText = "モチモチ状態";
+            } else if (currentWeight >= 57.5) {
+                titleEl.innerText = "まだまだぽっちゃり";
+            } else if (currentWeight >= 53.0) {
+                titleEl.innerText = "まだがんばれ！";
+            } else {
+                titleEl.innerText = "目標達成！";
+            }
+        }
+
+        // 🐾 【1日1回自動】今日のAIセリフを取得してキャッシュする関数
+        async function checkAndFetchDailyCatSpeech() {
+            const todayStr = getJSTDateString();
+            const savedData = JSON.parse(localStorage.getItem('diet_daily_cat_speech') || '{}');
+            const speechEl = document.getElementById('cat-speech-text');
+
+            // すでに今日分のAIセリフが保存されている場合は、AIを呼び出さずそれを瞬時に表示！
+            if (savedData.date === todayStr && savedData.speech) {
+                speechEl.innerText = savedData.speech;
+                return;
+            }
+
+            // まだ今日分がない場合のデフォルト文（AI取得までのつなぎ）
+            const defaultSpeechList = [
                 "「ふぁあ…今日もゴロゴロしてたいニャ。まぁ焦らずボチボチやりなよ」",
                 "「お腹いっぱいで動きたくないニャ…。でも記録くらいはちゃんとつけなよ？」",
                 "「ねむい…。ダイエットなんて明日からでも遅くない気候だニャ〜」",
                 "「今日もダラダラ最高！…って、あんたはちゃんと動くのよ？」"
             ];
-            const randomSpeech = speechList[Math.floor(Math.random() * speechList.length)];
+            const fallbackSpeech = defaultSpeechList[Math.floor(Math.random() * defaultSpeechList.length)];
+            speechEl.innerText = fallbackSpeech;
 
-            if (!currentWeight || currentWeight >= 60.0) {
-                titleEl.innerText = "モチモチ状態";
-                speechEl.innerText = randomSpeech;
-            } else if (currentWeight >= 57.5) {
-                titleEl.innerText = "まだまだぽっちゃり";
-                speechEl.innerText = "「お、少しお腹が軽くなってきた気がするニャ？サボっちゃダメだよ」";
-            } else if (currentWeight >= 53.0) {
-                titleEl.innerText = "まだがんばれ！";
-                speechEl.innerText = "「やるじゃん！あたしの動きも軽やかになってきたわ。目標まであとちょっと！」";
-            } else {
-                titleEl.innerText = "目標達成！";
-                speechEl.innerText = "「すごーい！目標達成ニャ✨ フッ、あたしの可愛さも完璧でしょ？」";
+            // APIキーがない場合はデフォルトのまま終了
+            const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
+            if (!apiKey) return;
+
+            // 裏でこっそりAIに今日のサバサバセリフを作ってもらう
+            try {
+                const latestWeight = state.weightLogs.length > 0 ? state.weightLogs[state.weightLogs.length - 1].weight : 60.0;
+                const prompt = `
+あなたはユーザーの相棒である「ちょっぴりだらしなくてサバサバした口調のダイエッと三毛猫」です。
+現在のユーザーの体重は ${latestWeight}kg（目標は ${state.targetWeight}kg）です。
+アプリを開いたユーザーに向けて、今日一日をボチボチ頑張るための「サバサバした猫らしいひとことアドバイスや呟き」を、50文字以内で1つだけ教えてください。
+語尾は「〜ニャ」「〜でしょ」「〜じゃない？」などで、余計な挨拶や解説は含めず、セリフの文言だけを返してください。
+`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content) {
+                    let aiText = data.candidates[0].content.parts[0].text.trim();
+                    // 鍵括弧がなければつける
+                    if (!aiText.startsWith('「')) aiText = '「' + aiText;
+                    if (!aiText.endsWith('」')) aiText = aiText + '」';
+
+                    // 画面に反映
+                    speechEl.innerText = aiText;
+
+                    // 本日分としてスマホに保存（これで今日中は何回開いてもAIを呼び出しません）
+                    localStorage.setItem('diet_daily_cat_speech', JSON.stringify({
+                        date: todayStr,
+                        speech: aiText
+                    }));
+                }
+            } catch (err) {
+                console.error("AI daily speech fetch error:", err);
             }
         }
 
-        function updateDashboard() {
+     function updateDashboard() {
             const selectedDate = state.selectedDate;
 
             const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
@@ -642,7 +694,6 @@ function shiftSelectedDate(offsetDays) {
                 document.getElementById('summary-weight').innerText = latestWeight.toFixed(1);
                 document.getElementById('summary-target-weight').innerText = state.targetWeight.toFixed(1);
 
-                // 目標までの差
                 const diff = latestWeight - state.targetWeight;
                 const diffEl = document.getElementById('summary-weight-diff');
                 if (diff > 0) {
@@ -653,7 +704,6 @@ function shiftSelectedDate(offsetDays) {
                     diffEl.className = "font-bold text-emerald-600";
                 }
 
-                // 最高体重から何kg減量したかの計算
                 const maxWeight = Math.max(...state.weightLogs.map(w => w.weight));
                 const lossFromMax = maxWeight - latestWeight;
                 const maxDiffEl = document.getElementById('summary-max-diff');
@@ -723,7 +773,7 @@ function shiftSelectedDate(offsetDays) {
             renderFoodLogs();
         }
 
-     function previewImage(event) {
+        function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -776,7 +826,7 @@ function shiftSelectedDate(offsetDays) {
             try {
                 const prompt = `
 あなたはユーザーの相棒である「ちょっぴりだらしなくてサバサバした口調のダイエッと三毛猫」です。
-語尾は具「〜ニャ」「〜でしょ」「〜じゃない？」など、親しみやすくちょっとサバサバした猫口調にしてください。
+語尾は「〜ニャ」「〜でしょ」「〜じゃない？」など、親しみやすくちょっとサバサバした猫口調にしてください。
 以下の「${selectedDate}」のユーザーのデータを元に、150文字程度でコメント（アドバイスやねぎらい）を教えてください。
 
 【目標】
@@ -847,8 +897,7 @@ ${foodListStr}
                 textEl.innerText = "通信に失敗しました。APIキーを確認してください。";
             }
         }
-
-        async function analyzeFoodWithAI() {
+async function analyzeFoodWithAI() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
                 alert('先に右上「APIキー設定」からGemini APIキーを設定してください。');
@@ -930,7 +979,8 @@ JSONフォーマット例:
                 btn.innerHTML = `<i class="fa-solid fa-bolt"></i> <span>AIでカロリー解析</span>`;
             }
         }
-function saveFoodRecord() {
+
+        function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
             const category = document.getElementById('food-category-select').value;
