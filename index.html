@@ -11,6 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 🐾 定番メニューデータベースの読み込み -->
+    <script src="menu-data.js"></script>
     <style>
         .glass {
             background: rgba(255, 255, 255, 0.9);
@@ -198,29 +200,71 @@
                 </div>
             </section>
 
-            <!-- AI食事記録セクション -->
-            <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
+            <!-- 🐾 【新機能】定番メニューから選ぶ ＆ AI食事記録セクション -->
+            <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
-                        <span>AI食事カロリー自動計算</span>
+                        <i class="fa-solid fa-utensils text-emerald-500"></i>
+                        <span>食事を記録する</span>
                     </h2>
-                    <span class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-0.5 rounded-full font-medium">高速化モード</span>
+                    <span class="text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">爆速・定番辞書対応</span>
                 </div>
- <!-- よく食べるもの（お気に入り）クイック登録バー -->
-                <div class="space-y-1.5 pt-1">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
-                            <i class="fa-solid fa-star text-amber-400"></i> よく食べるもの（ワンタップ登録 & 削除可能）:
-                        </span>
+
+                <!-- タブ切り替えボタン -->
+                <div class="flex border-b border-slate-100">
+                    <button onclick="switchRecordTab('master')" id="tab-master-btn" class="flex-1 pb-2.5 text-xs font-bold border-b-2 border-emerald-500 text-emerald-600 transition">
+                        <i class="fa-solid fa-book-open mr-1"></i> 定番メニューから選ぶ（爆速）
+                    </button>
+                    <button onclick="switchRecordTab('ai')" id="tab-ai-btn" class="flex-1 pb-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI自動計算・写真解析
+                    </button>
+                </div>
+
+                <!-- Tab 1: 定番メニューから選ぶエリア -->
+                <div id="record-tab-master" class="space-y-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="master-search-input" oninput="filterMasterMenu()" placeholder="メニュー名で検索（例: ご飯、オムライス、納豆...）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition">
                     </div>
-                    <div id="favorites-container" class="flex flex-wrap gap-1.5 min-h-[32px] items-center">
-                        <!-- JavaScriptで動的生成 -->
+
+                    <!-- 検索結果・メニュー選択リスト -->
+                    <div id="master-menu-list" class="max-h-52 overflow-y-auto space-y-1.5 pr-1 border border-slate-100 rounded-xl p-2 bg-slate-50/50">
+                        <!-- JSで動的生成 -->
+                    </div>
+
+                    <!-- 選択中メニューのクイック登録カード -->
+                    <div id="selected-master-card" class="hidden bg-emerald-50/60 border border-emerald-200 rounded-xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-emerald-800">選択中: <span id="selected-master-name" class="text-slate-800">--</span></span>
+                            <span class="text-xs font-bold text-emerald-600"><span id="selected-master-cal">0</span> kcal</span>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-medium text-slate-600">量 (倍率):</label>
+                                <select id="master-multiplier-select" onchange="updateSelectedMasterCal()" class="border border-slate-200 rounded-lg p-2 text-xs bg-white font-bold text-emerald-700">
+                                    <option value="0.5">0.5人前 (半分)</option>
+                                    <option value="1.0" selected>1.0人前 (普通)</option>
+                                    <option value="1.2">1.2倍</option>
+                                    <option value="1.5">1.5人前 (大盛り)</option>
+                                    <option value="2.0">2.0人前 (特盛)</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <select id="master-category-select" class="border border-slate-200 rounded-lg p-2 text-xs bg-white">
+                                    <option value="朝食">朝食</option>
+                                    <option value="昼食" selected>昼食</option>
+                                    <option value="夕食">夕食</option>
+                                    <option value="間食">間食</option>
+                                </select>
+                                <button onclick="saveMasterFoodRecord()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-sm">
+                                    選択日に記録
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- AI入力フォーム -->
-                <div class="space-y-3 pt-2 border-t border-slate-100">
+                <!-- Tab 2: AI自動計算エリア -->
+                <div id="record-tab-ai" class="hidden space-y-3">
                     <div class="relative">
                         <textarea id="ai-food-input" rows="2" placeholder="食べたものを入力（例: 納豆ご飯と目玉焼き、味噌汁）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none resize-none transition"></textarea>
                     </div>
@@ -246,7 +290,7 @@
                     </div>
                 </div>
 
-                <!-- AI解析結果カード -->
+        <!-- AI解析結果カード -->
                 <div id="ai-result-card" class="hidden bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
                     <div class="flex items-center justify-between pt-1">
                         <span class="text-xs font-bold text-slate-700">推定カロリー & PFC (修正可能)</span>
@@ -275,11 +319,6 @@
                                 選択日に記録
                             </button>
                         </div>
-                    </div>
-                    <!-- お気に入り登録用のチェックボックス -->
-                    <div class="flex items-center gap-2 pt-1">
-                        <input type="checkbox" id="add-to-fav-check" class="w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-400 cursor-pointer">
-                        <label for="add-to-fav-check" class="text-xs font-medium text-slate-600 cursor-pointer">⭐ このメニューを「よく食べるもの（お気に入り）」に登録する</label>
                     </div>
 
                     <input type="hidden" id="food-p-input" value="0">
@@ -368,7 +407,7 @@
                     </div>
                 </div>
 
-                <!-- 最新体重サマリー (グラフの上のバーとして配置) -->
+                <!-- 最新体重サマリー -->
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold">
@@ -399,7 +438,8 @@
 
         </main>
     </div>
- <!-- APIキー＆設定モーダル -->
+
+    <!-- APIキー＆設定モーダル -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -449,22 +489,17 @@
             foodLogs: JSON.parse(localStorage.getItem('diet_food_logs')) || [],
             weightLogs: JSON.parse(localStorage.getItem('diet_weight_logs')) || [],
             activityLogs: JSON.parse(localStorage.getItem('diet_activity_logs')) || [],
-            favoriteFoods: JSON.parse(localStorage.getItem('diet_favorite_foods')) || [
-                { name: "プロテイン", calories: 120, p: 24, f: 2, c: 3 },
-                { name: "納豆ご飯", calories: 320, p: 12, f: 5, c: 55 },
-                { name: "サラダチキン", calories: 130, p: 27, f: 2, c: 0 },
-                { name: "ゆで卵", calories: 75, p: 6, f: 5, c: 0 }
-            ],
             selectedImageBase64: null,
             graphPeriod: 7,
-            selectedDate: getJSTDateString()
+            selectedDate: getJSTDateString(),
+            selectedMasterItem: null
         };
 
         let weightChart = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('selected-date-picker').value = state.selectedDate;
-            renderFavorites();
+            renderMasterMenuList('');
         });
 
         function setTodayDate() {
@@ -519,8 +554,8 @@
         function initApp() {
             setTodayDate();
             initChart();
-            renderFavorites();
-            checkAndFetchDailyCatSpeech(); // 🐾 1日1回自動で猫のセリフを取得する関数を呼び出し
+            renderMasterMenuList('');
+            checkAndFetchDailyCatSpeech();
         }
 
         function updateAppView() {
@@ -529,8 +564,7 @@
             updateDateNotice();
             loadDataForSelectedDate();
         }
-
-        function updateDateNotice() {
+function updateDateNotice() {
             const today = getJSTDateString();
             const noticeBar = document.getElementById('date-notice-bar');
             const dateLabel = state.selectedDate === today ? '今日' : state.selectedDate;
@@ -576,13 +610,111 @@
             input.value = current;
         }
 
-        // 🐾 猫ちゃんのキャラ切り替え ＆ 1日1回AIセリフ自動取得の管理
+        // 🐾 タブ切り替え関数
+        function switchRecordTab(tabName) {
+            const masterBtn = document.getElementById('tab-master-btn');
+            const aiBtn = document.getElementById('tab-ai-btn');
+            const masterArea = document.getElementById('record-tab-master');
+            const aiArea = document.getElementById('record-tab-ai');
+
+            if (tabName === 'master') {
+                masterBtn.className = "flex-1 pb-2.5 text-xs font-bold border-b-2 border-emerald-500 text-emerald-600 transition";
+                aiBtn.className = "flex-1 pb-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                masterArea.classList.remove('hidden');
+                aiArea.classList.add('hidden');
+            } else {
+                aiBtn.className = "flex-1 pb-2.5 text-xs font-bold border-b-2 border-amber-500 text-amber-600 transition";
+                masterBtn.className = "flex-1 pb-2.5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                aiArea.classList.remove('hidden');
+                masterArea.classList.add('hidden');
+            }
+        }
+
+        // 🐾 定番メニューリストの描画 ＆ 検索フィルター
+        function renderMasterMenuList(filterText = '') {
+            const container = document.getElementById('master-menu-list');
+            if (!container || typeof MASTER_MENU_DATA === 'undefined') return;
+
+            const query = filterText.toLowerCase();
+            const filtered = MASTER_MENU_DATA.filter(item => item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs">該当するメニューが見つかりません</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div onclick="selectMasterItem('${item.id}')" class="flex items-center justify-between p-2 bg-white hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 rounded-lg cursor-pointer transition">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">${item.category}</span>
+                        <span class="text-xs font-bold text-slate-800">${item.name}</span>
+                    </div>
+                    <div class="text-xs font-black text-emerald-600">${item.calories} kcal</div>
+                </div>
+            `).join('');
+        }
+
+        function filterMasterMenu() {
+            const query = document.getElementById('master-search-input').value;
+            renderMasterMenuList(query);
+        }
+
+        function selectMasterItem(id) {
+            const item = MASTER_MENU_DATA.find(m => m.id === id);
+            if (!item) return;
+
+            state.selectedMasterItem = item;
+            document.getElementById('selected-master-name').innerText = item.name;
+            document.getElementById('master-multiplier-select').value = "1.0";
+            document.getElementById('selected-master-cal').innerText = item.calories;
+            document.getElementById('selected-master-card').classList.remove('hidden');
+        }
+
+        function updateSelectedMasterCal() {
+            if (!state.selectedMasterItem) return;
+            const multiplier = parseFloat(document.getElementById('master-multiplier-select').value) || 1.0;
+            const calculatedCal = Math.round(state.selectedMasterItem.calories * multiplier);
+            document.getElementById('selected-master-cal').innerText = calculatedCal;
+        }
+
+        function saveMasterFoodRecord() {
+            if (!state.selectedMasterItem) return;
+            const item = state.selectedMasterItem;
+            const multiplier = parseFloat(document.getElementById('master-multiplier-select').value) || 1.0;
+            const category = document.getElementById('master-category-select').value;
+
+            const calories = Math.round(item.calories * multiplier);
+            const p = Math.round((item.p || 0) * multiplier * 10) / 10;
+            const f = Math.round((item.f || 0) * multiplier * 10) / 10;
+            const c = Math.round((item.c || 0) * multiplier * 10) / 10;
+
+            const targetDate = state.selectedDate;
+            const newLog = {
+                id: Date.now(),
+                date: targetDate,
+                time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+                name: `${item.name} (${multiplier}人前)`,
+                calories, category, p, f, c
+            };
+
+            state.foodLogs.push(newLog);
+            localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
+
+            // フォームリセット
+            document.getElementById('selected-master-card').classList.add('hidden');
+            state.selectedMasterItem = null;
+            document.getElementById('master-search-input').value = '';
+            renderMasterMenuList('');
+
+            updateDashboard();
+            renderFoodLogs();
+        }
+
+        // 🐾 猫ちゃんのキャラ設定 ＆ 1日1回自動AIセリフ
         async function updateCatCharacter(currentWeight) {
             const imgEl = document.getElementById('cat-avatar-img');
             const titleEl = document.getElementById('cat-status-title');
-            const speechEl = document.getElementById('cat-speech-text');
 
-            // 猫ちゃんGIFをランダムに選ぶ
             const randomCatNum = Math.floor(Math.random() * 3) + 1;
             imgEl.src = `cat-${randomCatNum}.gif`;
 
@@ -597,19 +729,16 @@
             }
         }
 
-        // 🐾 【1日1回自動】今日のAIセリフを取得してキャッシュする関数
         async function checkAndFetchDailyCatSpeech() {
             const todayStr = getJSTDateString();
             const savedData = JSON.parse(localStorage.getItem('diet_daily_cat_speech') || '{}');
             const speechEl = document.getElementById('cat-speech-text');
 
-            // すでに今日分のAIセリフが保存されている場合は、AIを呼び出さずそれを瞬時に表示！
             if (savedData.date === todayStr && savedData.speech) {
                 speechEl.innerText = savedData.speech;
                 return;
             }
 
-            // まだ今日分がない場合のデフォルト文（AI取得までのつなぎ）
             const defaultSpeechList = [
                 "「ふぁあ…今日もゴロゴロしてたいニャ。まぁ焦らずボチボチやりなよ」",
                 "「お腹いっぱいで動きたくないニャ…。でも記録くらいはちゃんとつけなよ？」",
@@ -619,11 +748,9 @@
             const fallbackSpeech = defaultSpeechList[Math.floor(Math.random() * defaultSpeechList.length)];
             speechEl.innerText = fallbackSpeech;
 
-            // APIキーがない場合はデフォルトのまま終了
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) return;
 
-            // 裏でこっそりAIに今日のサバサバセリフを作ってもらう
             try {
                 const latestWeight = state.weightLogs.length > 0 ? state.weightLogs[state.weightLogs.length - 1].weight : 60.0;
                 const prompt = `
@@ -642,14 +769,10 @@
                 const data = await response.json();
                 if (data.candidates && data.candidates[0].content) {
                     let aiText = data.candidates[0].content.parts[0].text.trim();
-                    // 鍵括弧がなければつける
                     if (!aiText.startsWith('「')) aiText = '「' + aiText;
                     if (!aiText.endsWith('」')) aiText = aiText + '」';
 
-                    // 画面に反映
                     speechEl.innerText = aiText;
-
-                    // 本日分としてスマホに保存（これで今日中は何回開いてもAIを呼び出しません）
                     localStorage.setItem('diet_daily_cat_speech', JSON.stringify({
                         date: todayStr,
                         speech: aiText
@@ -659,8 +782,7 @@
                 console.error("AI daily speech fetch error:", err);
             }
         }
-
-     function updateDashboard() {
+function updateDashboard() {
             const selectedDate = state.selectedDate;
 
             const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
@@ -678,9 +800,9 @@
             document.getElementById('summary-burn-calories').innerText = Math.round((state.activityLogs.find(a => a.date === selectedDate)?.steps || 0) * 0.04);
             document.getElementById('summary-net-calories').innerText = totalCal - Math.round((state.activityLogs.find(a => a.date === selectedDate)?.steps || 0) * 0.04);
 
-            document.getElementById('p-val').innerText = totalP;
-            document.getElementById('f-val').innerText = totalF;
-            document.getElementById('c-val').innerText = totalC;
+            document.getElementById('p-val').innerText = Math.round(totalP);
+            document.getElementById('f-val').innerText = Math.round(totalF);
+            document.getElementById('c-val').innerText = Math.round(totalC);
 
             document.getElementById('p-target').innerText = targetP;
             document.getElementById('f-target').innerText = targetF;
@@ -720,59 +842,7 @@
             }
         }
 
-        function renderFavorites() {
-            const container = document.getElementById('favorites-container');
-            if (!container) return;
-
-            if (state.favoriteFoods.length === 0) {
-                container.innerHTML = `<span class="text-[11px] text-slate-400">よく食べるものが登録されていません</span>`;
-                return;
-            }
-
-            container.innerHTML = state.favoriteFoods.map((fav, index) => `
-                <div class="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition">
-                    <button onclick="quickAddFavorite(${index})" class="flex items-center gap-1 active:scale-95">
-                        <i class="fa-solid fa-plus text-[10px] text-amber-600"></i>
-                        <span>${fav.name}</span>
-                        <span class="text-[10px] text-amber-600 font-normal">(${fav.calories}kcal)</span>
-                    </button>
-                    <button onclick="deleteFavorite(${index})" class="text-amber-400 hover:text-red-500 ml-1 text-xs px-1 transition" title="削除">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function deleteFavorite(index) {
-            state.favoriteFoods.splice(index, 1);
-            localStorage.setItem('diet_favorite_foods', JSON.stringify(state.favoriteFoods));
-            renderFavorites();
-        }
-
-        function quickAddFavorite(index) {
-            const fav = state.favoriteFoods[index];
-            if (!fav) return;
-
-            const targetDate = state.selectedDate;
-            const newLog = {
-                id: Date.now(),
-                date: targetDate,
-                time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
-                name: fav.name,
-                calories: fav.calories,
-                category: '間食',
-                p: fav.p || 0,
-                f: fav.f || 0,
-                c: fav.c || 0
-            };
-
-            state.foodLogs.push(newLog);
-            localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
-
-            updateDashboard();
-            renderFoodLogs();
-        }
-
+        // AI食事解析関連
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -809,10 +879,9 @@
             
             const aRecord = state.activityLogs.find(a => a.date === selectedDate) || {};
             const steps = aRecord.steps || 0;
-            const burnCal = Math.round(steps * 0.04);
             const water = aRecord.water || 0;
             const bowel = aRecord.bowel || '未記録';
-            const foodListStr = targetFoods.map(f => `- ${f.category}: ${f.name} (${f.calories}kcal, P:${f.p}g, F:${f.f}g, C:${f.c}g)`).join('\n') || '記録なし';
+            const foodListStr = targetFoods.map(f => `- ${f.category}: ${f.name} (${f.calories}kcal)`).join('\n') || '記録なし';
 
             const btn = document.getElementById('trainer-btn');
             const box = document.getElementById('trainer-result-box');
@@ -897,7 +966,8 @@ ${foodListStr}
                 textEl.innerText = "通信に失敗しました。APIキーを確認してください。";
             }
         }
-async function analyzeFoodWithAI() {
+
+        async function analyzeFoodWithAI() {
             const apiKey = state.apiKey || localStorage.getItem('diet_gemini_api_key');
             if (!apiKey) {
                 alert('先に右上「APIキー設定」からGemini APIキーを設定してください。');
@@ -931,7 +1001,7 @@ JSONフォーマット例:
 入力テキスト: ${textInput}
 `;
 
-                let contents = [];
+         let contents = [];
                 if (state.selectedImageBase64) {
                     const base64Data = state.selectedImageBase64.split(',')[1];
                     const mimeType = state.selectedImageBase64.split(';')[0].split(':')[1];
@@ -964,7 +1034,6 @@ JSONフォーマット例:
                     document.getElementById('food-p-input').value = result.p || 0;
                     document.getElementById('food-f-input').value = result.f || 0;
                     document.getElementById('food-c-input').value = result.c || 0;
-                    document.getElementById('add-to-fav-check').checked = false;
 
                     document.getElementById('ai-result-card').classList.remove('hidden');
                 } else {
@@ -984,10 +1053,9 @@ JSONフォーマット例:
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
             const category = document.getElementById('food-category-select').value;
-            const p = parseInt(document.getElementById('food-p-input').value) || 0;
-            const f = parseInt(document.getElementById('food-f-input').value) || 0;
-            const c = parseInt(document.getElementById('food-c-input').value) || 0;
-            const addToFav = document.getElementById('add-to-fav-check').checked;
+            const p = parseFloat(document.getElementById('food-p-input').value) || 0;
+            const f = parseFloat(document.getElementById('food-f-input').value) || 0;
+            const c = parseFloat(document.getElementById('food-c-input').value) || 0;
 
             if (!name) return;
 
@@ -1001,14 +1069,6 @@ JSONフォーマット例:
 
             state.foodLogs.push(newLog);
             localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
-
-            if (addToFav) {
-                if (!state.favoriteFoods.some(fav => fav.name === name)) {
-                    state.favoriteFoods.push({ name, calories, p, f, c });
-                    localStorage.setItem('diet_favorite_foods', JSON.stringify(state.favoriteFoods));
-                    renderFavorites();
-                }
-            }
 
             document.getElementById('ai-food-input').value = '';
             document.getElementById('ai-result-card').classList.add('hidden');
