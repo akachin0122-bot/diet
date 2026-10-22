@@ -11,8 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 🐾 定番メニューデータベースの読み込み -->
-    <script src="menu-data.js"></script>
     <style>
         .glass {
             background: rgba(255, 255, 255, 0.9);
@@ -91,27 +89,22 @@
 
             <!-- 🐾 水色枠サイズ！ド迫力の相棒ダイエッと猫ちゃんカード -->
             <section class="bg-amber-50/80 border-2 border-amber-200/90 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
-                <!-- 猫ちゃんGIF（横幅いっぱいのワイド＆大きな高さ） -->
                 <div class="w-full h-56 sm:h-64 bg-amber-100 rounded-xl border-2 border-amber-300 flex items-center justify-center overflow-hidden shadow-inner relative">
                     <img id="cat-avatar-img" src="cat-1.gif" alt="ダイエッと猫ちゃん" class="w-full h-full object-cover">
                 </div>
-                
-                <!-- 下部に配置するステータス＆セリフ -->
                 <div class="space-y-2 text-center">
                     <div class="flex items-center justify-center gap-2">
                         <span class="bg-amber-200 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full">相棒ネコ</span>
                         <h2 id="cat-status-title" class="text-base font-bold text-slate-800">モチモチ状態</h2>
                     </div>
-                    <!-- 猫ちゃんの呟き吹き出し -->
                     <div class="relative bg-white border border-amber-200 rounded-xl p-3 text-xs sm:text-sm font-medium text-slate-700 shadow-sm leading-relaxed">
                         <span id="cat-speech-text">「ふぁあ…今日もゴロゴロしてたいニャ。まぁ焦らずボチボチやりなよ」</span>
                     </div>
                 </div>
             </section>
 
-            <!-- サマリーカード (2列: カロリーバランス ＆ PFCバランス) -->
+            <!-- サマリーカード -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- カロリー＆歩数バランスサマリー -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">選択日のカロリーバランス</span>
@@ -137,7 +130,6 @@
                     </div>
                 </div>
 
-                <!-- PFCバランス（自動計算目標値付き） -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">PFCバランス (実績 / 目標)</span>
@@ -181,12 +173,10 @@
                     </button>
                 </div>
 
-                <!-- アドバイス表示エリア -->
                 <div id="trainer-result-box" class="hidden bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3.5 text-xs leading-relaxed text-amber-50 space-y-2">
                     <span id="trainer-advice-text">分析中...</span>
                 </div>
 
-                <!-- コンビニ・外食お助けクイック相談 -->
                 <div class="pt-2 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
                     <span class="text-xs font-bold text-amber-100 flex items-center gap-1">
                         <i class="fa-solid fa-store"></i> 外食・コンビニのおすすめ相談:
@@ -200,7 +190,7 @@
                 </div>
             </section>
 
-            <!-- 🐾 【新機能】定番メニューから選ぶ ＆ AI食事記録セクション -->
+            <!-- 🐾 定番メニューから選ぶ ＆ AI食事記録セクション -->
             <section class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-5">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
@@ -220,7 +210,7 @@
                     </button>
                 </div>
 
-                <!-- Tab 1: 定番メニューから選ぶエリア -->
+              <!-- Tab 1: 定番メニューから選ぶエリア -->
                 <div id="record-tab-master" class="space-y-3">
                     <div class="flex gap-2">
                         <input type="text" id="master-search-input" oninput="filterMasterMenu()" placeholder="メニュー名で検索（例: ご飯、オムライス、納豆...）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition">
@@ -269,7 +259,6 @@
                         <textarea id="ai-food-input" rows="2" placeholder="食べたものを入力（例: 納豆ご飯と目玉焼き、味噌汁）" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none resize-none transition"></textarea>
                     </div>
 
-                    <!-- 画像添付プレビュー & ボタンエリア -->
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <label class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer transition">
@@ -290,12 +279,11 @@
                     </div>
                 </div>
 
-        <!-- AI解析結果カード -->
+                <!-- AI解析結果カード -->
                 <div id="ai-result-card" class="hidden bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
                     <div class="flex items-center justify-between pt-1">
                         <span class="text-xs font-bold text-slate-700">推定カロリー & PFC (修正可能)</span>
                     </div>
-                    
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                         <div class="sm:col-span-2">
                             <label class="text-[10px] text-slate-500 font-medium">メニュー名</label>
@@ -320,16 +308,14 @@
                             </button>
                         </div>
                     </div>
-
                     <input type="hidden" id="food-p-input" value="0">
                     <input type="hidden" id="food-f-input" value="0">
                     <input type="hidden" id="food-c-input" value="0">
                 </div>
             </section>
 
-            <!-- 選択日の食事ログ・歩数・体重・コンディション記録 -->
+            <!-- 食事ログ・歩数・体重記録 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 食事ログ一覧 -->
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <h3 class="font-bold text-slate-800 text-sm"><span id="food-log-date-label">選択日</span>の食事</h3>
@@ -340,7 +326,6 @@
                     </div>
                 </div>
 
-                <!-- コンディション・水分・お通じ記録フォーム -->
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <h3 class="font-bold text-slate-800 text-sm"><span id="condition-log-date-label">選択日</span>のコンディション・水分</h3>
@@ -374,7 +359,6 @@
                     </form>
                 </div>
 
-                <!-- 体重記録フォーム -->
                 <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3 md:col-span-2">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <h3 class="font-bold text-slate-800 text-sm"><span id="weight-log-date-label">選択日</span>の体重</h3>
@@ -407,7 +391,6 @@
                     </div>
                 </div>
 
-                <!-- 最新体重サマリー -->
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold">
@@ -469,8 +452,69 @@
         </div>
     </div>
 
-    <!-- JavaScript ロジック -->
+    <!-- JavaScript ロジック ＆ 定番メニューデータベース内包型 -->
     <script>
+        // 🐾 定番メニューマスターデータベース (一体型)
+        const MASTER_MENU_DATA = [
+            { id: "m1", name: "ご飯 (1杯/150g)", category: "主食", calories: 252, p: 3.8, f: 0.5, c: 55.7 },
+            { id: "m2", name: "玄米ご飯 (1杯/150g)", category: "主食", calories: 248, p: 4.2, f: 1.5, c: 51.0 },
+            { id: "m3", name: "赤飯 (1杯/150g)", category: "主食", calories: 284, p: 5.2, f: 0.8, c: 61.5 },
+            { id: "m4", name: "おにぎり (梅干し/90g)", category: "主食", calories: 140, p: 2.5, f: 0.3, c: 30.5 },
+            { id: "m5", name: "全粥 (250g)", category: "主食", calories: 178, p: 2.8, f: 0.4, c: 39.5 },
+            { id: "m6", name: "食パン (1枚/6枚切り60g)", category: "主食", calories: 156, p: 5.5, f: 2.6, c: 28.0 },
+            { id: "m7", name: "クロワッサン (1個/40g)", category: "主食", calories: 178, p: 3.2, f: 10.5, c: 17.5 },
+            { id: "m8", name: "バターロール (1個/30g)", category: "主食", calories: 95, p: 2.5, f: 3.5, c: 13.5 },
+            { id: "m9", name: "そば (ゆで1玉/170g)", category: "主食", calories: 224, p: 8.5, f: 1.2, c: 45.0 },
+            { id: "m10", name: "うどん (ゆで1玉/220g)", category: "主食", calories: 231, p: 5.5, f: 0.9, c: 49.0 },
+            { id: "m11", name: "中華めん (蒸し1玉/150g)", category: "主食", calories: 297, p: 7.5, f: 2.5, c: 60.0 },
+            { id: "m12", name: "スパゲティ (乾燥1人分/100g)", category: "主食", calories: 378, p: 13.0, f: 2.0, c: 72.0 },
+            { id: "m13", name: "カレーライス", category: "定食・外食", calories: 954, p: 18.0, f: 32.0, c: 145.0 },
+            { id: "m14", name: "牛丼", category: "定食・外食", calories: 909, p: 26.0, f: 35.0, c: 120.0 },
+            { id: "m15", name: "かつどん", category: "定食・外食", calories: 893, p: 32.0, f: 38.0, c: 105.0 },
+            { id: "m16", name: "オムライス", category: "定食・外食", calories: 697, p: 22.0, f: 26.0, c: 92.0 },
+            { id: "m17", name: "シーフードスパゲティ", category: "定食・外食", calories: 731, p: 28.0, f: 20.0, c: 102.0 },
+            { id: "m18", name: "スパゲティミートソース", category: "定食・外食", calories: 597, p: 22.0, f: 18.0, c: 84.0 },
+            { id: "m19", name: "お好み焼き", category: "定食・外食", calories: 553, p: 18.0, f: 24.0, c: 66.0 },
+            { id: "m20", name: "ラーメン", category: "定食・外食", calories: 443, p: 15.0, f: 14.0, c: 62.0 },
+            { id: "m21", name: "ビーフシチュー", category: "定食・外食", calories: 568, p: 32.0, f: 35.0, c: 30.0 },
+            { id: "m22", name: "ハンバーグ", category: "主菜", calories: 437, p: 24.0, f: 28.0, c: 16.0 },
+            { id: "m23", name: "豚肉しょうが焼き", category: "主菜", calories: 330, p: 26.0, f: 22.0, c: 7.0 },
+            { id: "m24", name: "かに玉", category: "主菜", calories: 339, p: 18.0, f: 24.0, c: 10.0 },
+            { id: "m25", name: "ぶり照り焼き", category: "主菜", calories: 295, p: 25.0, f: 18.0, c: 8.0 },
+            { id: "m26", name: "鶏のからあげ (一人前)", category: "主菜", calories: 284, p: 22.0, f: 18.0, c: 8.0 },
+            { id: "m27", name: "魚のフライ", category: "主菜", calories: 272, p: 16.0, f: 16.0, c: 15.0 },
+            { id: "m28", name: "さんま塩焼き", category: "主菜", calories: 248, p: 20.0, f: 18.0, c: 0.5 },
+            { id: "m29", name: "しゅうまい (6個)", category: "主菜", calories: 246, p: 14.0, f: 15.0, c: 14.0 },
+            { id: "m30", name: "ポテトサラダ", category: "副菜", calories: 224, p: 3.5, f: 15.0, c: 18.0 },
+            { id: "m31", name: "さつま芋天ぷら", category: "副菜", calories: 305, p: 3.0, f: 14.0, c: 42.0 },
+            { id: "m32", name: "里芋の煮ころがし", category: "副菜", calories: 126, p: 2.0, f: 1.0, c: 27.0 },
+            { id: "m33", name: "かぼちゃ煮物", category: "副菜", calories: 126, p: 2.2, f: 0.5, c: 28.0 },
+            { id: "m34", name: "きんぴら", category: "副菜", calories: 93, p: 2.0, f: 5.0, c: 10.0 },
+            { id: "m35", name: "厚焼き玉子", category: "副菜", calories: 142, p: 8.5, f: 10.0, c: 3.5 },
+            { id: "m36", name: "冷奴 (半丁)", category: "副菜", calories: 97, p: 8.0, f: 5.5, c: 3.0 },
+            { id: "m37", name: "ゆで卵 (1個)", category: "副菜", calories: 83, p: 7.0, f: 5.8, c: 0.3 },
+            { id: "m38", name: "納豆 (1パック50g)", category: "副菜", calories: 100, p: 8.3, f: 5.0, c: 6.0 },
+            { id: "m39", name: "辛子明太子 (1腹/35g)", category: "副菜", calories: 44, p: 8.2, f: 1.1, c: 0.5 },
+            { id: "m40", name: "味噌汁", category: "汁物", calories: 33, p: 2.0, f: 1.0, c: 4.0 },
+            { id: "m41", name: "豚汁", category: "汁物", calories: 167, p: 8.0, f: 11.0, c: 8.5 },
+            { id: "m42", name: "コーンスープ", category: "汁物", calories: 210, p: 4.5, f: 10.0, c: 24.0 },
+            { id: "m43", name: "ショートケーキ (1個)", category: "デザート", calories: 292, p: 4.5, f: 16.0, c: 32.0 },
+            { id: "m44", name: "チーズケーキ (1個)", category: "デザート", calories: 281, p: 6.0, f: 18.0, c: 24.0 },
+            { id: "m45", name: "シュークリーム (1個)", category: "デザート", calories: 229, p: 5.0, f: 14.0, c: 21.0 },
+            { id: "m46", name: "どら焼き (1個)", category: "デザート", calories: 226, p: 5.5, f: 3.0, c: 44.0 },
+            { id: "m47", name: "プリン (1個)", category: "デザート", calories: 198, p: 5.5, f: 8.5, c: 24.0 },
+            { id: "m48", name: "カステラ (1切)", category: "デザート", calories: 149, p: 3.2, f: 3.0, c: 27.0 },
+            { id: "m49", name: "クッキー (5枚)", category: "デザート", calories: 210, p: 2.5, f: 11.0, c: 24.0 },
+            { id: "m50", name: "バナナ (1本)", category: "果物", calories: 72, p: 1.0, f: 0.2, c: 18.5 },
+            { id: "m51", name: "りんご (3切れ)", category: "果物", calories: 49, p: 0.2, f: 0.1, c: 13.0 },
+            { id: "m52", name: "みかん (1個)", category: "果物", calories: 34, p: 0.6, f: 0.1, c: 8.5 },
+            { id: "m53", name: "牛乳 (200ml)", category: "飲み物", calories: 134, p: 6.8, f: 7.6, c: 9.8 },
+            { id: "m54", name: "カフェラテ (無糖/1杯200ml)", category: "飲み物", calories: 70, p: 4.8, f: 4.0, c: 6.2 },
+            { id: "m55", name: "ビール (中瓶500ml)", category: "飲み物", calories: 200, p: 2.5, f: 0.0, c: 15.0 },
+            { id: "m56", name: "日本酒 (1合)", category: "飲み物", calories: 190, p: 1.5, f: 0.0, c: 7.0 },
+            { id: "m57", name: "コーヒー (ブラック)", category: "飲み物", calories: 4, p: 0.3, f: 0.0, c: 0.7 }
+        ];
+
         function getJSTDateString(dateObj = new Date()) {
             const jstOffset = 9 * 60;
             const localUtc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000);
@@ -564,7 +608,8 @@
             updateDateNotice();
             loadDataForSelectedDate();
         }
-function updateDateNotice() {
+
+        function updateDateNotice() {
             const today = getJSTDateString();
             const noticeBar = document.getElementById('date-notice-bar');
             const dateLabel = state.selectedDate === today ? '今日' : state.selectedDate;
@@ -610,7 +655,6 @@ function updateDateNotice() {
             input.value = current;
         }
 
-        // 🐾 タブ切り替え関数
         function switchRecordTab(tabName) {
             const masterBtn = document.getElementById('tab-master-btn');
             const aiBtn = document.getElementById('tab-ai-btn');
@@ -629,11 +673,9 @@ function updateDateNotice() {
                 masterArea.classList.add('hidden');
             }
         }
-
-        // 🐾 定番メニューリストの描画 ＆ 検索フィルター
-        function renderMasterMenuList(filterText = '') {
+function renderMasterMenuList(filterText = '') {
             const container = document.getElementById('master-menu-list');
-            if (!container || typeof MASTER_MENU_DATA === 'undefined') return;
+            if (!container) return;
 
             const query = filterText.toLowerCase();
             const filtered = MASTER_MENU_DATA.filter(item => item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
@@ -700,7 +742,6 @@ function updateDateNotice() {
             state.foodLogs.push(newLog);
             localStorage.setItem('diet_food_logs', JSON.stringify(state.foodLogs));
 
-            // フォームリセット
             document.getElementById('selected-master-card').classList.add('hidden');
             state.selectedMasterItem = null;
             document.getElementById('master-search-input').value = '';
@@ -710,7 +751,6 @@ function updateDateNotice() {
             renderFoodLogs();
         }
 
-        // 🐾 猫ちゃんのキャラ設定 ＆ 1日1回自動AIセリフ
         async function updateCatCharacter(currentWeight) {
             const imgEl = document.getElementById('cat-avatar-img');
             const titleEl = document.getElementById('cat-status-title');
@@ -782,7 +822,8 @@ function updateDateNotice() {
                 console.error("AI daily speech fetch error:", err);
             }
         }
-function updateDashboard() {
+
+        function updateDashboard() {
             const selectedDate = state.selectedDate;
 
             const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
@@ -841,9 +882,7 @@ function updateDashboard() {
                 document.getElementById('summary-max-diff').innerText = `最高体重から: --`;
             }
         }
-
-        // AI食事解析関連
-        function previewImage(event) {
+function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -873,10 +912,6 @@ function updateDashboard() {
             const selectedDate = state.selectedDate;
             const targetFoods = state.foodLogs.filter(f => f.date === selectedDate);
             const totalCal = targetFoods.reduce((sum, f) => sum + f.calories, 0);
-            const totalP = targetFoods.reduce((sum, f) => sum + (f.p || 0), 0);
-            const totalF = targetFoods.reduce((sum, f) => sum + (f.f || 0), 0);
-            const totalC = targetFoods.reduce((sum, f) => sum + (f.c || 0), 0);
-            
             const aRecord = state.activityLogs.find(a => a.date === selectedDate) || {};
             const steps = aRecord.steps || 0;
             const water = aRecord.water || 0;
@@ -1001,7 +1036,7 @@ JSONフォーマット例:
 入力テキスト: ${textInput}
 `;
 
-         let contents = [];
+                let contents = [];
                 if (state.selectedImageBase64) {
                     const base64Data = state.selectedImageBase64.split(',')[1];
                     const mimeType = state.selectedImageBase64.split(';')[0].split(':')[1];
@@ -1048,8 +1083,7 @@ JSONフォーマット例:
                 btn.innerHTML = `<i class="fa-solid fa-bolt"></i> <span>AIでカロリー解析</span>`;
             }
         }
-
-        function saveFoodRecord() {
+function saveFoodRecord() {
             const name = document.getElementById('food-name-input').value.trim();
             const calories = parseInt(document.getElementById('food-cal-input').value) || 0;
             const category = document.getElementById('food-category-select').value;
